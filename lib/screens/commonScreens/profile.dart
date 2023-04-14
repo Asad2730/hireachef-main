@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 import 'package:hireachef/screens/auth/login.dart';
 import 'package:hireachef/screens/customer/password_edit.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
@@ -83,17 +84,16 @@ class _ProfileState extends State<Profile> {
             const SizedBox(
               height: 10,
             ),
-            const Text(
-              "LOREM USER",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+             Text(
+             Helper.loggedUser.username,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(
               height: 40,
             ),
-            profileCard("Name", "Lorem User"),
-            profileCard("Phone No", "+92 3xx xxxxxxx "),
-            profileCard("Email", "abc@gmail.com"),
-            profileCard("City", "Rawalpindi"),
+            profileCard("Name", Helper.loggedUser.username),
+            profileCard("Email",  Helper.loggedUser.email),
+            profileCard("City",  Helper.loggedUser.location),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

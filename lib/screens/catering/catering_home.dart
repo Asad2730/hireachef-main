@@ -99,6 +99,7 @@ class _CateringHomeState extends State<CateringHome> {
                     GestureDetector(
                       onTap: () {
                         Get.to(() => const AddCuisine());
+
                       },
                       child: Container(
                         width: 80,

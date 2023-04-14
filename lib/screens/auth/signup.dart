@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Constants.dart';
 import 'package:hireachef/screens/auth/login.dart';
-import 'package:hireachef/screens/customer/home.dart';
 
 import '../../widgets/textfields/text_field.dart';
 
@@ -14,6 +15,8 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController email = TextEditingController();
@@ -56,7 +59,7 @@ class _SignupState extends State<Signup> {
                 textField(username, "Username", Icons.person),
                 textField(email, "Email", Icons.email_outlined),
                 textField(password, "Password", Icons.password),
-                textField(username, "Location", Icons.location_city_outlined),
+                textField(city, "Location", Icons.location_city_outlined),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -101,7 +104,7 @@ class _SignupState extends State<Signup> {
                 ),
                 GestureDetector(
                   onTap: (){
-                    Get.offAll(()=>const Home());
+                   addUser();
                   },
                   child: Container(
                     width: Get.width,
@@ -151,5 +154,24 @@ class _SignupState extends State<Signup> {
         ),
       ),
     );
+  }
+
+
+  void addUser() async{
+    try{
+      Map<String,dynamic> data = {
+        'username':username.text.toString().toLowerCase(),
+        'email':email.text.toString().toLowerCase(),
+        'password':password.text.toString(),
+        'location':city.text.toString(),
+        'type':radioValue
+      };
+
+      await db.collection('users').add(data);
+      Fluttertoast.showToast(msg: 'User added successfully!');
+      Get.offAll(()=>const Login());
+    }catch(ex){
+      print(ex);
+    }
   }
 }

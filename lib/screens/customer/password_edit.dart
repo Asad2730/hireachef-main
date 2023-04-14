@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 
 import '../../Constants.dart';
 
@@ -11,7 +14,8 @@ class PasswordEdit extends StatefulWidget {
 }
 
 class _PasswordEditState extends State<PasswordEdit> {
-  TextEditingController old_password = TextEditingController();
+
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   TextEditingController new_password = TextEditingController();
   TextEditingController conirm_password = TextEditingController();
 
@@ -44,11 +48,7 @@ class _PasswordEditState extends State<PasswordEdit> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Old Password"),
-            TextField(
-              controller: old_password,
-              decoration: const InputDecoration(isDense: true),
-            ),
+
             const SizedBox(
               height: 30,
             ),
@@ -68,6 +68,7 @@ class _PasswordEditState extends State<PasswordEdit> {
             Align(
               alignment: Alignment.center,
               child: GestureDetector(
+                onTap: ()=>update(),
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
                   alignment: Alignment.center,
@@ -96,4 +97,16 @@ class _PasswordEditState extends State<PasswordEdit> {
       ),
     );
   }
+
+  Future update() async{
+    if(new_password.text.toString().trim() == conirm_password.text.toString().trim()){
+      await db.collection('users').doc(Helper.loggedUser.id)
+          .update({'password':new_password.text.toString()});
+      Fluttertoast.showToast(msg: 'Password updated!');
+      Get.back();
+    }else{
+      Fluttertoast.showToast(msg: 'Error:both passwords should match!');
+    }
+  }
+
 }
