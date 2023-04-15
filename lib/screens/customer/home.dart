@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Constants.dart';
 import 'package:hireachef/widgets/cards/customer/chef_cards.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
 import 'package:hireachef/widgets/navigation/top_nav_card.dart';
+
+import '../../Helper.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -105,17 +108,7 @@ class _HomeState extends State<Home> {
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 width: Get.width,
                 height: 240,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    chefCard2('assets/chef.jpg', "Lorem Chef",
-                        "a professional cook, typically the chief cook in a restaurant or hotel.", '4.3', '50'),
-                    chefCard2('assets/chef.jpg', "Lorem Chef",
-                        "a professional cook, typically the chief cook in a restaurant or hotel.", '4.3', '50'),
-                    chefCard2('assets/chef.jpg', "Lorem Chef",
-                        "a professional cook, typically the chief cook in a restaurant or hotel.", '4.3', '50'),
-                  ],
-                ),
+                child:  _card(0,Axis.horizontal),
               ),
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
@@ -125,14 +118,7 @@ class _HomeState extends State<Home> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              chefCard('assets/chef.jpg', "Lorem Chef", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50'),
-              chefCard('assets/chef.jpg', "Lorem Chef", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50'),
-              chefCard('assets/chef.jpg', "Lorem Chef", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50'),
-              chefCard('assets/chef.jpg', "Lorem Chef", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50'),
+              _card(1,Axis.vertical),
             ],
           ),
         ),
@@ -140,4 +126,43 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: navigationBar(context, 0),
     );
   }
+
+  Stream<QuerySnapshot> getData() {
+    return FirebaseFirestore.instance.collection('users')
+        .where('type',isEqualTo: 2)
+        .snapshots();
+  }
+
+  Widget _card(int op, Axis axis){
+    return StreamBuilder<QuerySnapshot>(
+      stream: getData(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        return ListView.builder(
+          scrollDirection: axis,
+          shrinkWrap: true,
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+            String cid = document.id;
+            if(op == 0){
+              return chefCard2('assets/chef.jpg',data['username'],
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",
+                  '4.3', '50',data,cid);
+            }else{
+              return chefCard('assets/chef.jpg', data["username"],
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",
+                  '4.3', '50',data,cid);
+            }
+
+          },
+        );
+      },
+    );
+
+  }
+
 }

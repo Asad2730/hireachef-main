@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
 import 'package:hireachef/widgets/navigation/catering_navigation.dart';
 import 'package:hireachef/widgets/navigation/chef_navigation.dart';
@@ -83,20 +85,8 @@ class _ChatMainState extends State<ChatMain> {
                   ),
                 ),
               ),
-              ListView.builder(
-                itemCount: 15,
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(top: 16),
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index){
-                  return convoCard(
-                    "Jane Russel",
-                    "Awesome Setup",
-                    'assets/avatar.png',
-                    "Yesterday",
-                  );
-                },
-              ),
+              _list(),
+
             ],
           ),
         ),
@@ -104,4 +94,41 @@ class _ChatMainState extends State<ChatMain> {
       bottomNavigationBar: bottomNavigation()
     );
   }
+
+  Stream<QuerySnapshot> getData() {
+    return FirebaseFirestore.instance.collection('users')
+        .where('email',isNotEqualTo: Helper.loggedUser.email)
+        .snapshots();
+  }
+
+  Widget _list(){
+    return StreamBuilder<QuerySnapshot>(
+      stream: getData(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(top: 16),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+            String id = document.id;
+            return convoCard(
+              data['username'],
+              "Awesome Setup",
+              'assets/avatar.png',
+              id: id,
+            );
+
+          },
+        );
+      },
+    );
+
+  }
+
 }

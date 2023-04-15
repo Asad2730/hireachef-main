@@ -8,3 +8,13 @@ class User{
   late int type;
 
 }
+
+
+class Notifications{
+  late String dishName,time,url,userName;
+  late String id;
+}
+
+
+
+

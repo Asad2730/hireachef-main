@@ -1,18 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
+import 'package:intl/intl.dart';
 
 import '../../Constants.dart';
 
 class ItemDetail extends StatefulWidget {
-  const ItemDetail({Key? key}) : super(key: key);
+  final String dishId;
+  final  Map<String, dynamic> data;
+  const ItemDetail({required this.dishId,required this.data,Key? key}) : super(key: key);
 
   @override
   State<ItemDetail> createState() => _ItemDetailState();
 }
 
 class _ItemDetailState extends State<ItemDetail> {
+
+
+
   @override
   Widget build(BuildContext context) {
+    double price = widget.data['price'];
+    String url = widget.data['url'];
+    String description = widget.data['description'];
+    String name = widget.data['name'];
     return Scaffold(
       appBar: AppBar(
         title: const Image(
@@ -41,8 +54,8 @@ class _ItemDetailState extends State<ItemDetail> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(20.0),
-              child: const Image(
-                image: AssetImage('assets/burger.jpg'),
+              child: Image.network(
+               url,
                 height: 130,
                 width:130,
               ),
@@ -52,32 +65,32 @@ class _ItemDetailState extends State<ItemDetail> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children:  [
                 Text(
-                  "Burger",
-                  style: TextStyle(
+                 name,
+                  style:const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '\$99.99',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  '\$ $price',
+                  style:const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(
               height: 20,
             ),
-            const Text(
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+             Text(
+               description,
               textAlign: TextAlign.justify,
             ),
             const SizedBox(
               height: 30,
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => sendRequest(),
               child: Container(
                 width: Get.width,
                 height: 50,
@@ -103,4 +116,24 @@ class _ItemDetailState extends State<ItemDetail> {
       ),
     );
   }
+
+
+  Future sendRequest() async{
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    DateTime now = DateTime.now();
+    String formattedTime = DateFormat('h:mm a').format(now);
+    Map<String,dynamic> data = {
+      'uid':Helper.loggedUser.id,
+      'dishId':widget.dishId,
+       'status':0,
+       'time':formattedTime,
+    };
+
+    await db.collection('requests').add(data);
+    Fluttertoast.showToast(msg: 'Request sent successfully!');
+    Get.back();
+
+  }
+
+
 }

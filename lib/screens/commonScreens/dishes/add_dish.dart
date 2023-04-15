@@ -1,7 +1,12 @@
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 import 'package:hireachef/widgets/textfields/text_field.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,11 +20,12 @@ class AddDish extends StatefulWidget {
 }
 
 class _AddDishState extends State<AddDish> {
+
   TextEditingController name = TextEditingController();
   TextEditingController price = TextEditingController();
   TextEditingController description = TextEditingController();
 
-  var imageFile;
+  late File imageFile;
 
   getFromGallery() async {
     PickedFile? pickedFile = await ImagePicker().getImage(
@@ -94,8 +100,7 @@ class _AddDishState extends State<AddDish> {
                 ),
               ),
               GestureDetector(
-                onTap: (){
-                },
+                onTap: ()=>addDish(),
                 child: Container(
                   width: Get.width,
                   height: 50,
@@ -123,4 +128,31 @@ class _AddDishState extends State<AddDish> {
       ),
     );
   }
+
+
+  Future addDish() async{
+    try{
+      String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      final Reference ref = storage.ref().child('dish/$uniqueFileName');
+      final TaskSnapshot uploadTask = await ref.putFile(imageFile);
+      final String downloadURL = await uploadTask.ref.getDownloadURL();
+      final FirebaseFirestore db = FirebaseFirestore.instance;
+      Map<String,dynamic> data = {
+        'uid': Helper.loggedUser.id,
+        'name':name.text.toString(),
+        'price':double.parse(price.text.toString()),
+        'description':description.text.toString(),
+        'url': downloadURL,
+      };
+
+      await db.collection('dishes').add(data);
+      Fluttertoast.showToast(msg: 'Item added!');
+      Get.back();
+    }catch(ex){
+      print('ex $ex');
+      Fluttertoast.showToast(msg: ex.toString());
+    }
+  }
+
 }

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 
 import '../../Constants.dart';
 import '../../widgets/cards/chef/dish_card.dart';
@@ -25,6 +27,7 @@ class _ChefHomeState extends State<ChefHome> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Constant.white,
       appBar: AppBar(
@@ -122,17 +125,7 @@ class _ChefHomeState extends State<ChefHome> {
                   ],
                 ),
               ),
-              dishCard('assets/burger.jpg', "Burger", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3'),
-              dishCard('assets/burger.jpg', "Burger", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3'),
-              dishCard('assets/burger.jpg', "Burger", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3'),
-              dishCard('assets/burger.jpg', "Burger", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3'),
-              dishCard('assets/burger.jpg', "Burger", "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3'),
-
+             _dishes(),
             ],
           ),
         ),
@@ -140,4 +133,35 @@ class _ChefHomeState extends State<ChefHome> {
       bottomNavigationBar: chefNavigation(context, 0),
     );
   }
+
+
+  Stream<QuerySnapshot> getDishes() {
+    return FirebaseFirestore.instance.collection('dishes')
+        .where('uid', isEqualTo:Helper.loggedUser.id)
+        .snapshots();
+  }
+
+
+  Widget _dishes(){
+    return StreamBuilder<QuerySnapshot>(
+      stream: getDishes(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+            return  dishCard(data['url'],data['name'] ,data['description'], '4.3');
+          },
+        );
+      },
+    );
+
+  }
+
 }

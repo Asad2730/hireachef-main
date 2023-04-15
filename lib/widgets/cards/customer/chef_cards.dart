@@ -4,10 +4,10 @@ import 'package:hireachef/screens/customer/chef_detail.dart';
 
 import '../../../Constants.dart';
 
-chefCard(image, chefName, details, rating,dishes) {
+chefCard(image, chefName, details, rating,dishes, Map<String, dynamic> data, String cid) {
   return GestureDetector(
     onTap: (){
-      Get.to(()=>const ChefDetail());
+      Get.to(()=> ChefDetail(cid: cid,data:data));
     },
     child: Container(
       width: Get.width,
@@ -95,10 +95,10 @@ chefCard(image, chefName, details, rating,dishes) {
   );
 }
 
-chefCard2(image, chefName, details, rating,dishes) {
+chefCard2(image, chefName, details, rating,dishes, Map<String, dynamic> data, String cid) {
   return GestureDetector(
     onTap: (){
-      Get.to(()=>const ChefDetail());
+      Get.to(()=> ChefDetail(cid: cid,data:data));
     },
     child: Container(
       width: Get.width / 2.5,

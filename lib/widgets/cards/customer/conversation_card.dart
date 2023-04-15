@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/screens/commonScreens/chat/chat_detail.dart';
 
-convoCard(name, messageText,imageUrl, time) {
+convoCard(name, messageText,imageUrl,{required String id}) {
   return GestureDetector(
     onTap: () {
-      Get.to(()=>const ChatDetail());
+      Get.to(()=> ChatDetail(id: id,name: name,));
     },
     child: Container(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -48,10 +48,7 @@ convoCard(name, messageText,imageUrl, time) {
               ],
             ),
           ),
-          Text(
-            time,
-            style: const TextStyle(fontSize: 12),
-          ),
+
         ],
       ),
     ),

@@ -33,8 +33,8 @@ cuisineCard(image, cuisineName, details, rating) {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
-                child: Image(
-                  image: AssetImage(image),
+                child: Image.network(
+                  image,
                   width: 130,
                   height: 130,
                 ),

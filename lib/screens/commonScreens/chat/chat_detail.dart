@@ -1,9 +1,15 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Constants.dart';
 
+import '../../../Helper.dart';
+
 class ChatDetail extends StatefulWidget {
-  const ChatDetail({Key? key}) : super(key: key);
+  final String id,name;
+  const ChatDetail({required this.id, required this.name,Key? key}) : super(key: key);
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();
@@ -11,6 +17,8 @@ class ChatDetail extends StatefulWidget {
 
 class _ChatDetailState extends State<ChatDetail> {
   TextEditingController msg = TextEditingController();
+
+
   List<ChatMessage> messages = [
     ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
     ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
@@ -18,8 +26,13 @@ class _ChatDetailState extends State<ChatDetail> {
     ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
     ChatMessage(messageContent: "Is there any thing wrong?", messageType: "sender"),
   ];
+
+
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -27,7 +40,7 @@ class _ChatDetailState extends State<ChatDetail> {
         backgroundColor: Constant.orange,
         flexibleSpace: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: 16),
             child: Row(
               children: <Widget>[
                 IconButton(
@@ -49,9 +62,9 @@ class _ChatDetailState extends State<ChatDetail> {
                 const SizedBox(
                   width: 12,
                 ),
-                const Text(
-                  "Kriss Benwat",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                 Text(
+                 widget.name,
+                  style:const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -74,28 +87,7 @@ class _ChatDetailState extends State<ChatDetail> {
         ),
         child: Stack(
           children: <Widget>[
-            ListView.builder(
-              itemCount: messages.length,
-              shrinkWrap: true,
-              padding: EdgeInsets.only(top: 10,bottom: 10),
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index){
-                return Container(
-                  padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
-                  child: Align(
-                    alignment: (messages[index].messageType == "receiver"?Alignment.topLeft:Alignment.topRight),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: (messages[index].messageType  == "receiver"?Colors.grey.shade200:Colors.blue[200]),
-                      ),
-                      padding: EdgeInsets.all(16),
-                      child: Text(messages[index].messageContent, style: TextStyle(fontSize: 15),),
-                    ),
-                  ),
-                );
-              },
-            ),
+            _stream(),
             Align(
               alignment: Alignment.bottomLeft,
               child: Container(
@@ -131,7 +123,7 @@ class _ChatDetailState extends State<ChatDetail> {
                       width: 15,
                     ),
                     FloatingActionButton(
-                      onPressed: () {},
+                      onPressed: ()=>message(),
                       backgroundColor: Colors.blue,
                       elevation: 0,
                       child: const Icon(
@@ -149,6 +141,78 @@ class _ChatDetailState extends State<ChatDetail> {
       ),
     );
   }
+
+  Future message() async{
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    Map<String,dynamic> data = {
+      'from':Helper.loggedUser.id,
+      'to':widget.id,
+      'ids':['${Helper.loggedUser.id}/${widget.id}'],
+      'msg':msg.text.toString(),
+    };
+
+    await db.collection('messages').add(data);
+    msg.clear();
+  }
+
+
+  Stream<QuerySnapshot> getData() {
+    String op1 = '${Helper.loggedUser.id}/${widget.id}';
+    String op2 = '${widget.id}/${Helper.loggedUser.id}';
+    return FirebaseFirestore.instance.collection('messages')
+        .where('ids', arrayContainsAny: [op1,op2])
+        .snapshots();
+  }
+
+  Widget _stream() {
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: getData(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+        if (snapshot.hasError) {
+          return const Text('Something went wrong!');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text("Loading");
+        }
+
+       return ListView(
+          reverse: true,
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(top: 10,bottom: 10),
+          physics: const NeverScrollableScrollPhysics(),
+          children: snapshot.data!.docs
+        .map((DocumentSnapshot document) {
+            Map<String, dynamic> data =
+            document.data()! as Map<String, dynamic>;
+           return Container(
+              padding: const EdgeInsets.only(
+                  left: 14, right: 14, top: 10, bottom: 10),
+              child: Align(
+                alignment: (data['from'] == widget.id
+                    ? Alignment.topLeft
+                    : Alignment.topRight),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: (data['to'] == Helper.loggedUser.id ? Colors
+                        .grey.shade200 : Colors.blue[200]),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Text(data['msg'],
+                    style: const TextStyle(fontSize: 15),),
+                ),
+              ),
+            );
+          }).toList().cast(),
+        );
+
+      },
+    );
+  }
+
 }
 
 

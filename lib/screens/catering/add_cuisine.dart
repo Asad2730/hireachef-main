@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/widgets/textfields/text_field.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../Constants.dart';
+import '../../Helper.dart';
 
 class AddCuisine extends StatefulWidget {
   const AddCuisine({Key? key}) : super(key: key);
@@ -19,7 +23,7 @@ class _AddCuisineState extends State<AddCuisine> {
   TextEditingController price = TextEditingController();
   TextEditingController description = TextEditingController();
 
-  var imageFile;
+   var imageFile;
 
   getFromGallery() async {
     PickedFile? pickedFile = await ImagePicker().getImage(
@@ -94,8 +98,7 @@ class _AddCuisineState extends State<AddCuisine> {
                 ),
               ),
               GestureDetector(
-                onTap: (){
-                },
+                onTap: ()=>addCuisine(),
                 child: Container(
                   width: Get.width,
                   height: 50,
@@ -123,4 +126,33 @@ class _AddCuisineState extends State<AddCuisine> {
       ),
     );
   }
+
+
+  Future addCuisine() async{
+    try{
+      String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      final Reference ref = storage.ref().child('cuisine/$uniqueFileName');
+      final TaskSnapshot uploadTask = await ref.putFile(imageFile);
+      final String downloadURL = await uploadTask.ref.getDownloadURL();
+      final FirebaseFirestore db = FirebaseFirestore.instance;
+      Map<String,dynamic> data = {
+        'uid': Helper.loggedUser.id,
+        'name':name.text.toString(),
+        'price':double.parse(price.text.toString()),
+        'description':description.text.toString(),
+        'url': downloadURL,
+      };
+
+      await db.collection('cuisines').add(data);
+      Fluttertoast.showToast(msg: 'Item added!');
+      Get.back();
+    }catch(ex){
+      print('ex $ex');
+      Fluttertoast.showToast(msg: ex.toString());
+    }
+  }
+
+
+
 }

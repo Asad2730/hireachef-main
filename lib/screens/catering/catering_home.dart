@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/screens/catering/add_cuisine.dart';
 import 'package:hireachef/widgets/cards/catering/cuisine_card.dart';
 import '../../Constants.dart';
+import '../../Helper.dart';
 import '../../widgets/navigation/catering_navigation.dart';
 import '../../widgets/navigation/chef_navigation.dart';
 
@@ -124,30 +126,7 @@ class _CateringHomeState extends State<CateringHome> {
                   ],
                 ),
               ),
-              cuisineCard(
-                'assets/italian.jpg',
-                "Italian Cuisine",
-                "Italian cuisine is a Mediterranean cuisine consisting of the ingredients, recipes and cooking techniques developed across the Italian Peninsula .",
-                '4.3',
-              ),
-              cuisineCard(
-                'assets/italian.jpg',
-                "Italian Cuisine",
-                "Italian cuisine is a Mediterranean cuisine consisting of the ingredients, recipes and cooking techniques developed across the Italian Peninsula .",
-                '4.3',
-              ),
-              cuisineCard(
-                'assets/italian.jpg',
-                "Italian Cuisine",
-                "Italian cuisine is a Mediterranean cuisine consisting of the ingredients, recipes and cooking techniques developed across the Italian Peninsula .",
-                '4.3',
-              ),
-              cuisineCard(
-                'assets/italian.jpg',
-                "Italian Cuisine",
-                "Italian cuisine is a Mediterranean cuisine consisting of the ingredients, recipes and cooking techniques developed across the Italian Peninsula .",
-                '4.3',
-              ),
+              _cuisines(),
             ],
           ),
         ),
@@ -155,4 +134,35 @@ class _CateringHomeState extends State<CateringHome> {
       bottomNavigationBar: cateringNavigation(context, 0),
     );
   }
+
+
+  Stream<QuerySnapshot> getCuisines() {
+    return FirebaseFirestore.instance.collection('cuisines')
+        .where('uid', isEqualTo:Helper.loggedUser.id)
+        .snapshots();
+  }
+
+
+  Widget _cuisines(){
+    return StreamBuilder<QuerySnapshot>(
+      stream: getCuisines(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+            return  cuisineCard(data['url'],data['name'] ,data['description'], '4.3');
+          },
+        );
+      },
+    );
+
+  }
+
+
 }

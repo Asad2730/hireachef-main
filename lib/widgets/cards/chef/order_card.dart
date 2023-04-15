@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
-pendingOrderCard(name, dish, time, image) {
+
+
+pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 5),
     child: Column(
@@ -11,8 +15,8 @@ pendingOrderCard(name, dish, time, image) {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: Image(
-                image: AssetImage(image),
+              child: Image.network(
+                image,
                 width: 50,
                 height:50,
               ),
@@ -44,17 +48,27 @@ pendingOrderCard(name, dish, time, image) {
                 color: Colors.green,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
-                children: const [
-                  Icon(
-                    Icons.check,
-                    color: Colors.white,
-                  ),
-                  Text(
-                    "Accept",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              child: GestureDetector(
+                onTap: ()async{
+                  DateTime now = DateTime.now();
+                  String formattedTime = DateFormat('h:mm a').format(now);
+                  await FirebaseFirestore.instance.collection('requests')
+                   .doc(id)
+                    .update({'status':1,'time':formattedTime});
+                  refresh();
+                },
+                child: Row(
+                  children:  const [
+                    Icon(
+                      Icons.check,
+                      color: Colors.white,
+                    ),
+                    Text(
+                      "Accept",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ),
             Container(
@@ -63,17 +77,27 @@ pendingOrderCard(name, dish, time, image) {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
-                children: const [
-                  Icon(
-                    Icons.close,
-                    color: Colors.white,
-                  ),
-                  Text(
-                    "Decline",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              child: GestureDetector(
+                onTap: ()async{
+                  DateTime now = DateTime.now();
+                  String formattedTime = DateFormat('h:mm a').format(now);
+                  await FirebaseFirestore.instance.collection('requests')
+                      .doc(id)
+                      .update({'status':-1,'time':formattedTime});
+                  refresh();
+                },
+                child: Row(
+                  children: const [
+                    Icon(
+                      Icons.close,
+                      color: Colors.white,
+                    ),
+                    Text(
+                      "Decline",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -141,8 +165,8 @@ activeOrderCard(name, dish, time, image) {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: Image(
-                image: AssetImage(image),
+              child: Image.network(
+                image,
                 width: 50,
                 height:50,
               ),
