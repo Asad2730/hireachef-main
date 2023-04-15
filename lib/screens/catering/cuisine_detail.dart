@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/widgets/cards/catering/cuisine_card.dart';
-import 'package:hireachef/widgets/cards/customer/dishes_cards.dart';
+
 
 import '../../Constants.dart';
 import '../commonScreens/dishes/add_dish.dart';
@@ -120,34 +121,52 @@ class _CuisineDetailState extends State<CuisineDetail> {
               const SizedBox(
                 height: 15,
               ),
-              dishCard(
-                'assets/lasagna.jpg',
-                "Lasagna",
-                "Lasagna is a type of pasta, possibly one of the oldest types, made of very wide, flat sheets. Either term can also refer to an Italian dish made of stacked layers of lasagna alternating with fillings such as ragù, béchamel sauce, vegetables, cheeses, and seasonings and spices.",
-                "4.4",
-              ),
-              dishCard(
-                'assets/lasagna.jpg',
-                "Lasagna",
-                "Lasagna is a type of pasta, possibly one of the oldest types, made of very wide, flat sheets. Either term can also refer to an Italian dish made of stacked layers of lasagna alternating with fillings such as ragù, béchamel sauce, vegetables, cheeses, and seasonings and spices.",
-                "4.4",
-              ),
-              dishCard(
-                'assets/lasagna.jpg',
-                "Lasagna",
-                "Lasagna is a type of pasta, possibly one of the oldest types, made of very wide, flat sheets. Either term can also refer to an Italian dish made of stacked layers of lasagna alternating with fillings such as ragù, béchamel sauce, vegetables, cheeses, and seasonings and spices.",
-                "4.4",
-              ),
-              dishCard(
-                'assets/lasagna.jpg',
-                "Lasagna",
-                "Lasagna is a type of pasta, possibly one of the oldest types, made of very wide, flat sheets. Either term can also refer to an Italian dish made of stacked layers of lasagna alternating with fillings such as ragù, béchamel sauce, vegetables, cheeses, and seasonings and spices.",
-                "4.4",
-              ),
+             _stream(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Stream<QuerySnapshot> getData() {
+    return FirebaseFirestore.instance.collection('dishes').snapshots();
+  }
+
+  Widget _stream() {
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: getData(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+        if (snapshot.hasError) {
+          return const Text('Something went wrong!');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text("Loading");
+        }
+
+
+
+        return ListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: snapshot.data!.docs
+              .map((DocumentSnapshot document) {
+            Map<String, dynamic> data =
+            document.data()! as Map<String, dynamic>;
+            return dishCard(
+              data['url'],
+              data['name'],
+              data['description'],
+              "4.4",
+            );
+          }).toList().cast(),
+        );
+
+      },
+    );
+  }
+
 }

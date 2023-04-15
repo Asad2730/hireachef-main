@@ -25,7 +25,7 @@ class _AddDishState extends State<AddDish> {
   TextEditingController price = TextEditingController();
   TextEditingController description = TextEditingController();
 
-  late File imageFile;
+  var imageFile;
 
   getFromGallery() async {
     PickedFile? pickedFile = await ImagePicker().getImage(
