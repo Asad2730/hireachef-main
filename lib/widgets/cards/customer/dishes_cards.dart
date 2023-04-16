@@ -4,7 +4,7 @@ import 'package:hireachef/screens/customer/item_detail.dart';
 
 import '../../../Constants.dart';
 
-dishesCard(image, name, description, rating, price, String did, Map<String, dynamic> data) {
+dishesCard(image, name, description, price, String did, Map<String, dynamic> data) {
   return GestureDetector(
     onTap: () {
       Get.to(()=> ItemDetail(dishId: did,data:data));
@@ -73,17 +73,6 @@ dishesCard(image, name, description, rating, price, String did, Map<String, dyna
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Constant.orange,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(rating),
-                        ],
-                      ),
                       Text(
                         "\$$price",
                         style: const TextStyle(fontSize: 14),

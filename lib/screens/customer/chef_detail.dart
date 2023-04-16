@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/widgets/cards/customer/dishes_cards.dart';
 
 import '../../Constants.dart';
 import '../../Helper.dart';
-import '../../widgets/cards/catering/cuisine_card.dart';
+
 
 class ChefDetail extends StatefulWidget {
 
@@ -19,6 +20,11 @@ class ChefDetail extends StatefulWidget {
 class _ChefDetailState extends State<ChefDetail> {
   @override
   Widget build(BuildContext context) {
+
+    String type = 'Dishes';
+    if(Helper.type == 4){
+      type='Cuisines';
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -58,9 +64,11 @@ class _ChefDetailState extends State<ChefDetail> {
               const SizedBox(
                 height: 10,
               ),
+              Helper.type != 4?
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
                    Text(
                    widget.data['username'],
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -68,24 +76,20 @@ class _ChefDetailState extends State<ChefDetail> {
                   const SizedBox(
                     width: 10,
                   ),
-                  Icon(
-                    Icons.star,
-                    color: Constant.white,
-                    size: 15,
-                  ),
-                  const SizedBox(width: 5),
-                  const Text("4.5"),
+
+
                 ],
-              ),
-              const Text("+92 3xx xxxxxxx"),
+              ):const Text(''),
+              Helper.type != 4?
+              const Text("+92 3xx xxxxxxx"):const Text(''),
               const SizedBox(
                 height: 20,
               ),
-              const Align(
+               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Dishes",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                 type,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
               const SizedBox(
@@ -101,36 +105,62 @@ class _ChefDetailState extends State<ChefDetail> {
     );
   }
 
-  Stream<QuerySnapshot> getData() {
-    return FirebaseFirestore.instance.collection('dishes')
-        .where('uid', isEqualTo:widget.cid)
-        .snapshots();
+
+  Future<Stream<QuerySnapshot>> getData() async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: widget.data['email'])
+        .get();
+    final docSnapshot = querySnapshot.docs.first;
+    String docId = docSnapshot.id;
+
+    Stream<QuerySnapshot> response;
+    if (Helper.type == 4) {
+      response = FirebaseFirestore.instance
+          .collection('cuisines')
+          .snapshots();
+    } else {
+      response = FirebaseFirestore.instance
+          .collection('dishes')
+          .where('uid', isEqualTo: docId)
+          .snapshots();
+    }
+    return response;
   }
 
 
-  Widget _dishes(){
-    return StreamBuilder<QuerySnapshot>(
-      stream: getData(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+  Widget _dishes() {
+    return FutureBuilder<Stream<QuerySnapshot>>(
+      future: getData(),
+      builder: (BuildContext context, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (BuildContext context, int index) {
-            DocumentSnapshot document = snapshot.data!.docs[index];
-            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-            String did = document.id;
-            return  dishesCard(data['url'],data['name'] ,
-                data['description'], '4.3',data['price'],
-                did,data);
+        return StreamBuilder<QuerySnapshot>(
+          stream: snapshot.data,
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text('Loading...');
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (BuildContext context, int index) {
+                DocumentSnapshot document = snapshot.data!.docs[index];
+                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                String did = document.id;
+                return  dishesCard(data['url'],data['name'] ,
+                    data['description'],data['price'],
+                    did,data);
 
+              },
+            );
           },
         );
       },
     );
-
   }
+
 
 }

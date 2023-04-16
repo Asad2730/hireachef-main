@@ -95,16 +95,44 @@ class _ChatMainState extends State<ChatMain> {
     );
   }
 
-  Stream<QuerySnapshot> getData() {
-    return FirebaseFirestore.instance.collection('users')
-        .where('email',isNotEqualTo: Helper.loggedUser.email)
-        .snapshots();
+
+  Future<List<Map<String, dynamic>>> getData() async {
+    List<Future<Map<String, dynamic>>> userQueries = [];
+
+    QuerySnapshot requests = await FirebaseFirestore.instance
+        .collection('requests')
+        .where('ids', arrayContainsAny: [Helper.loggedUser.id])
+        .where('status',isEqualTo: 1)
+        .get();
+
+    Set<String> processedIds = {}; // Store processed docIds in a set
+
+    requests.docs.forEach((requestDoc) {
+      String docId = requestDoc
+          .get('ids')
+          .firstWhere((id) => id != Helper.loggedUser.id);
+      if (!processedIds.contains(docId)) {
+        userQueries.add(FirebaseFirestore.instance
+            .collection('users')
+            .doc(docId)
+            .get()
+            .then((doc) => {'id': doc.id, ...doc.data()!}));
+        processedIds.add(docId); // Add processed docId to the set
+      }
+    });
+
+    List<Map<String, dynamic>> users = await Future.wait(userQueries);
+    return users;
   }
 
-  Widget _list(){
-    return StreamBuilder<QuerySnapshot>(
-      stream: getData(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
+
+
+
+  Widget _list() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: getData(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
@@ -112,23 +140,21 @@ class _ChatMainState extends State<ChatMain> {
           shrinkWrap: true,
           padding: const EdgeInsets.only(top: 16),
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: snapshot.data!.docs.length,
+          itemCount: snapshot.data!.length,
           itemBuilder: (BuildContext context, int index) {
-            DocumentSnapshot document = snapshot.data!.docs[index];
-            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-            String id = document.id;
+            Map<String, dynamic> data = snapshot.data![index];
+            String id = data['id'];
             return convoCard(
               data['username'],
               "Awesome Setup",
               'assets/avatar.png',
               id: id,
             );
-
           },
         );
       },
     );
-
   }
+
 
 }

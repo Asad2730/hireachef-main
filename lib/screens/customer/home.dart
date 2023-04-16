@@ -25,6 +25,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void refresh(){
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,10 +93,9 @@ class _HomeState extends State<Home> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    topNavCard("Chefs"),
-                    topNavCard("Caterers"),
-                    topNavCard("Cuisines"),
-                    topNavCard("Top Picks"),
+                    topNavCard("Chefs",2,refresh),
+                    topNavCard("Caterers",3,refresh),
+                    topNavCard("Cuisines",4,refresh),
                   ],
                 ),
               ),
@@ -128,12 +131,24 @@ class _HomeState extends State<Home> {
   }
 
   Stream<QuerySnapshot> getData() {
-    return FirebaseFirestore.instance.collection('users')
-        .where('type',isEqualTo: 2)
-        .snapshots();
+    if(Helper.type == 4){
+      return FirebaseFirestore.instance.collection('cuisines')
+          .snapshots();
+    }else{
+      return FirebaseFirestore.instance.collection('users')
+          .where('type',isEqualTo: Helper.type)
+          .snapshots();
+    }
+
   }
 
   Widget _card(int op, Axis axis){
+
+    String name = 'username';
+    if(Helper.type == 4){
+       name='name';
+    }
+
     return StreamBuilder<QuerySnapshot>(
       stream: getData(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -149,13 +164,11 @@ class _HomeState extends State<Home> {
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String cid = document.id;
             if(op == 0){
-              return chefCard2('assets/chef.jpg',data['username'],
-                  "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50',data,cid);
+              return chefCard2('assets/chef.jpg',data[name],
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
             }else{
-              return chefCard('assets/chef.jpg', data["username"],
-                  "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  '4.3', '50',data,cid);
+              return chefCard('assets/chef.jpg', data[name],
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
             }
 
           },

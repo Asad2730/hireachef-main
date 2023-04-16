@@ -1,6 +1,7 @@
 
 class Helper{
   static late User loggedUser ;
+  static int type = 2;
 }
 
 class User{

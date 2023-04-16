@@ -119,7 +119,14 @@ class _ItemDetailState extends State<ItemDetail> {
 
 
   Future sendRequest() async{
+
+    String type ='dishes';
+    if(Helper.type == 4){
+      type ='cuisines';
+    }
     final FirebaseFirestore db = FirebaseFirestore.instance;
+    var snapShot = await db.collection(type).doc(widget.dishId).get();
+    var doc = snapShot.get('uid');
     DateTime now = DateTime.now();
     String formattedTime = DateFormat('h:mm a').format(now);
     Map<String,dynamic> data = {
@@ -127,11 +134,12 @@ class _ItemDetailState extends State<ItemDetail> {
       'dishId':widget.dishId,
        'status':0,
        'time':formattedTime,
+       'ids':[Helper.loggedUser.id,doc],
     };
 
-    await db.collection('requests').add(data);
-    Fluttertoast.showToast(msg: 'Request sent successfully!');
-    Get.back();
+     await db.collection('requests').add(data);
+     Fluttertoast.showToast(msg: 'Request sent successfully!');
+     Get.back();
 
   }
 

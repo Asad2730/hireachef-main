@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 import 'package:hireachef/widgets/cards/catering/cuisine_card.dart';
 
 
@@ -130,7 +131,9 @@ class _CuisineDetailState extends State<CuisineDetail> {
   }
 
   Stream<QuerySnapshot> getData() {
-    return FirebaseFirestore.instance.collection('dishes').snapshots();
+    return FirebaseFirestore.instance.collection('dishes')
+        .where('uid',isEqualTo: Helper.loggedUser.id)
+        .snapshots();
   }
 
   Widget _stream() {
@@ -160,7 +163,6 @@ class _CuisineDetailState extends State<CuisineDetail> {
               data['url'],
               data['name'],
               data['description'],
-              "4.4",
             );
           }).toList().cast(),
         );

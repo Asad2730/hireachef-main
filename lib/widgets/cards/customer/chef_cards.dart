@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/Helper.dart';
 import 'package:hireachef/screens/customer/chef_detail.dart';
 
 import '../../../Constants.dart';
 
-chefCard(image, chefName, details, rating,dishes, Map<String, dynamic> data, String cid) {
+chefCard(image, chefName, details, Map<String, dynamic> data, String cid) {
+
+
   return GestureDetector(
     onTap: (){
       Get.to(()=> ChefDetail(cid: cid,data:data));
@@ -33,7 +36,11 @@ chefCard(image, chefName, details, rating,dishes, Map<String, dynamic> data, Str
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
-                child: Image(
+                child: Helper.type == 4?Image.network(
+                  data['url'],
+                  width: 130,
+                  height: 130,
+                ):Image(
                   image: AssetImage(image),
                   width: 130,
                   height: 130,
@@ -67,24 +74,7 @@ chefCard(image, chefName, details, rating,dishes, Map<String, dynamic> data, Str
                   const SizedBox(
                     height: 5,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Constant.orange,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(rating),
-                        ],
-                      ),
-                      Text("Items ($dishes)"),
-                    ],
-                  )
+
                 ],
               ),
             ),
@@ -95,9 +85,10 @@ chefCard(image, chefName, details, rating,dishes, Map<String, dynamic> data, Str
   );
 }
 
-chefCard2(image, chefName, details, rating,dishes, Map<String, dynamic> data, String cid) {
+chefCard2(image, chefName, details , Map<String, dynamic> data, String cid) {
   return GestureDetector(
     onTap: (){
+      print('$data');
       Get.to(()=> ChefDetail(cid: cid,data:data));
     },
     child: Container(
@@ -119,14 +110,19 @@ chefCard2(image, chefName, details, rating,dishes, Map<String, dynamic> data, St
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20.0),
-            child: Image(
-              image: AssetImage(image),
-              height: 130,
-              width: 130,
-            ),
-          ),
+        ClipRRect(
+           borderRadius: BorderRadius.circular(20.0),
+           child: Helper.type == 4?Image.network(
+             data['url'],
+             height: 130,
+             width: 130,
+           ):Image(
+             image: AssetImage(image),
+             height: 130,
+             width: 130,
+           ),
+
+  ),
           Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 18),
@@ -148,24 +144,7 @@ chefCard2(image, chefName, details, rating,dishes, Map<String, dynamic> data, St
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Constant.orange,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(rating),
-                        ],
-                      ),
-                      Text("Items ($dishes)"),
-                    ],
-                  )
+
                 ],
               ),
             ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hireachef/Helper.dart';
 
 import '../../Constants.dart';
 
-topNavCard(title){
+topNavCard(title,type,VoidCallback refresh){
   return GestureDetector(
     onTap: (){
-
+      Helper.type = type;
+      refresh();
     },
     child: Container(
       width: 100,

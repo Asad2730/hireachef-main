@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hireachef/widgets/navigation/chef_navigation.dart';
 
 import '../../../Constants.dart';
 import '../../../Helper.dart';
@@ -19,6 +18,7 @@ class _PendingOrdersState extends State<PendingOrders> {
   void refresh() {
     setState(() {});
   }
+
 
 
   @override
@@ -52,10 +52,12 @@ class _PendingOrdersState extends State<PendingOrders> {
 
   Future<List<Notifications>> getData() async {
     List<Notifications> list = [];
-    List<Temp> temp1 = [], temp2 = [];
+    List<Temp> temp1 = [], temp2 = [],tl=[];
 
-    QuerySnapshot requests =
-    await FirebaseFirestore.instance.collection('requests').where('status', isEqualTo: 0).get();
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection('requests')
+        .where('status', isEqualTo: 0)
+        .where('ids',arrayContainsAny: [Helper.loggedUser.id])
+        .get();
 
     List<Future<void>> futures = [];
 
@@ -74,13 +76,44 @@ class _PendingOrdersState extends State<PendingOrders> {
         temp1.add(t);
       }));
 
-      DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-      futures.add(dish.get().then((value) {
-        var t = Temp();
-        t.ob1 = value.get('name');
-        t.ob2 = value.get('url');
-        temp2.add(t);
-      }));
+      if(Helper.loggedUser.type == 2){
+
+        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
+        futures.add(dish.get().then((value) {
+          var t = Temp();
+          t.ob1 = value.get('name');
+          t.ob2 = value.get('url');
+          temp2.add(t);
+        }));
+
+      }else{
+
+
+        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
+
+        futures.add(dish.get().then((value) {
+           if(value.exists){
+             var t = Temp();
+             t.ob1 = value.get('name');
+             t.ob2 = value.get('url');
+             tl.add(t);
+             //temp2.add(t);
+           }
+        }));
+
+        DocumentReference cuisines = FirebaseFirestore.instance.collection('cuisines').doc(dishId);
+        futures.add(cuisines.get().then((value) {
+           if(value.exists){
+             var t = Temp();
+             t.ob1 = value.get('name');
+             t.ob2 = value.get('url');
+             tl.add(t);
+             // temp2.add(t);
+           }
+        }));
+
+        temp2 = tl;
+      }
     }
 
     await Future.wait(futures);
@@ -92,15 +125,18 @@ class _PendingOrdersState extends State<PendingOrders> {
       notification.id = temp1.elementAt(i).ob3;
       notification.dishName = temp2.elementAt(i).ob1;
       notification.url = temp2.elementAt(i).ob2;
-      notification.id = temp1.elementAt(i).ob3;
+
       list.add(notification);
     }
+
+
 
     return list;
   }
 
 
   Widget _list() {
+
     return FutureBuilder<List<Notifications>>(
       future: getData(),
       builder: (BuildContext context, AsyncSnapshot<List<Notifications>> snapshot) {
@@ -108,7 +144,7 @@ class _PendingOrdersState extends State<PendingOrders> {
           return const CircularProgressIndicator();
         }
         if (snapshot.hasError) {
-          return const Text('Something went wrong!');
+          return  Text('Something went wrong!${snapshot.error}');
         }
         if (snapshot.hasData && snapshot.data!.isEmpty) {
           return const Text('No data found.');

@@ -49,14 +49,17 @@ class _ActiveOrdersState extends State<ActiveOrders> {
 
   Future<List<Notifications>> getData() async {
     List<Notifications> list = [];
-    List<Temp> temp1 = [], temp2 = [];
+    List<Temp> temp1 = [], temp2 = [],tl=[];
 
-    QuerySnapshot requests =
-    await FirebaseFirestore.instance.collection('requests').where('status', isEqualTo: 1).get();
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection('requests')
+        .where('status', isEqualTo: 0)
+        .where('ids',arrayContainsAny: [Helper.loggedUser.id])
+        .get();
 
     List<Future<void>> futures = [];
 
     for (var i in requests.docs) {
+
       String uid = i.get('uid');
       String dishId = i.get('dishId');
       String time = i.get('time');
@@ -69,13 +72,44 @@ class _ActiveOrdersState extends State<ActiveOrders> {
         temp1.add(t);
       }));
 
-      DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-      futures.add(dish.get().then((value) {
-        var t = Temp();
-        t.ob1 = value.get('name');
-        t.ob2 = value.get('url');
-        temp2.add(t);
-      }));
+      if(Helper.loggedUser.type == 2){
+
+        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
+        futures.add(dish.get().then((value) {
+          var t = Temp();
+          t.ob1 = value.get('name');
+          t.ob2 = value.get('url');
+          temp2.add(t);
+        }));
+
+      }else{
+
+
+        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
+
+        futures.add(dish.get().then((value) {
+          if(value.exists){
+            var t = Temp();
+            t.ob1 = value.get('name');
+            t.ob2 = value.get('url');
+            tl.add(t);
+            //temp2.add(t);
+          }
+        }));
+
+        DocumentReference cuisines = FirebaseFirestore.instance.collection('cuisines').doc(dishId);
+        futures.add(cuisines.get().then((value) {
+          if(value.exists){
+            var t = Temp();
+            t.ob1 = value.get('name');
+            t.ob2 = value.get('url');
+            tl.add(t);
+            // temp2.add(t);
+          }
+        }));
+
+        temp2 = tl;
+      }
     }
 
     await Future.wait(futures);
@@ -90,8 +124,11 @@ class _ActiveOrdersState extends State<ActiveOrders> {
       list.add(notification);
     }
 
+
+
     return list;
   }
+
 
 
   Widget _list() {

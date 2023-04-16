@@ -101,7 +101,7 @@ cuisineCard(image, cuisineName, details, rating) {
   );
 }
 
-dishCard(image, chefName, details, rating) {
+dishCard(image, chefName, details) {
   return GestureDetector(
     onTap: (){
 
@@ -168,17 +168,7 @@ dishCard(image, chefName, details, rating) {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Constant.orange,
-                            size: 15,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(rating),
-                        ],
-                      ),
+
                       Row(
                         children: const [
                           Icon(Icons.mode_edit_outlined,color: Colors.green,),
