@@ -151,12 +151,14 @@ class _ChefHomeState extends State<ChefHome> {
         }
 
         return ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (BuildContext context, int index) {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-            return  dishCard(data['url'],data['name'] ,data['description'], '4.3');
+            String docId = document.id;
+            return  dishCard(data['url'],data['name'] ,data['description'], data['price'],docId);
           },
         );
       },

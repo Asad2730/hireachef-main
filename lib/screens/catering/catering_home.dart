@@ -156,7 +156,8 @@ class _CateringHomeState extends State<CateringHome> {
           itemBuilder: (BuildContext context, int index) {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-            return  cuisineCard(data['url'],data['name'] ,data['description'], '4.3');
+            String docId = document.id;
+            return  cuisineCard(data['url'],data['name'] ,data['description'],data['price'],docId);
           },
         );
       },

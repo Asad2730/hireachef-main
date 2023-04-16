@@ -1,14 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../../Constants.dart';
+import '../../../screens/commonScreens/dishes/edit_dish.dart';
 
-dishCard(image, chefName, details, rating) {
-  return GestureDetector(
-    onTap: (){
-
-    },
-    child: Container(
+dishCard(image, chefName, details, price,docId) {
+  return  Container(
       width: Get.width,
       height: 120,
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -73,19 +72,37 @@ dishCard(image, chefName, details, rating) {
                       Row(
                         children: [
                           Icon(
-                            Icons.star,
+                            Icons.money,
                             color: Constant.orange,
                             size: 15,
                           ),
                           const SizedBox(width: 5),
-                          Text(rating),
+                          Text(price.toString()),
                         ],
                       ),
                       Row(
-                        children: const [
-                          Icon(Icons.mode_edit_outlined,color: Colors.green,),
-                          Text(" / "),
-                          Icon(Icons.delete_forever_outlined,color: Colors.red,),
+                        children:  [
+                          GestureDetector(
+                            child: const Icon(Icons.mode_edit_outlined,color: Colors.green,),
+                            onTap: (){
+                              Get.to(()=>EditDish(name: chefName,price: price,
+                                  description: details,id: docId,url: image));
+                            },
+                          ),
+                          const SizedBox(width: 15,),
+                          const Text(" / "),
+                          const SizedBox(width: 15,),
+                          GestureDetector(
+                            child: const  Icon(Icons.delete_forever_outlined,color: Colors.red,),
+                            onTap: ()async{
+                              await FirebaseFirestore.instance
+                                  .collection('dishes')
+                                  .doc(docId)
+                                  .delete();
+
+                              Fluttertoast.showToast(msg: 'Deleted!');
+                            },
+                          ),
                         ],
                       ),
                     ],
@@ -96,6 +113,6 @@ dishCard(image, chefName, details, rating) {
           )
         ],
       ),
-    ),
+
   );
 }

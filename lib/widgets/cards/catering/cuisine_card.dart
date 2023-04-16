@@ -1,13 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/screens/catering/cuisine_detail.dart';
+import 'package:hireachef/screens/commonScreens/dishes/edit_dish.dart';
 
 import '../../../Constants.dart';
 
-cuisineCard(image, cuisineName, details, rating) {
+cuisineCard(image, cuisineName, details,price,id) {
   return GestureDetector(
     onTap: (){
-      Get.to(()=>const CuisineDetail());
+      Get.to(()=> CuisineDetail(url: image,name: cuisineName,price: price,));
     },
     child: Container(
       width: Get.width,
@@ -74,12 +77,12 @@ cuisineCard(image, cuisineName, details, rating) {
                       Row(
                         children: [
                           Icon(
-                            Icons.star,
+                            Icons.money,
                             color: Constant.orange,
                             size: 15,
                           ),
                           const SizedBox(width: 5),
-                          Text(rating),
+                          Text(price.toString()),
                         ],
                       ),
                       Row(
@@ -101,12 +104,8 @@ cuisineCard(image, cuisineName, details, rating) {
   );
 }
 
-dishCard(image, chefName, details) {
-  return GestureDetector(
-    onTap: (){
-
-    },
-    child: Container(
+dishCard(image, chefName, details,price,id) {
+  return  Container(
       width: Get.width,
       height: 120,
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -170,10 +169,28 @@ dishCard(image, chefName, details) {
                     children: [
 
                       Row(
-                        children: const [
-                          Icon(Icons.mode_edit_outlined,color: Colors.green,),
-                          Text(" / "),
-                          Icon(Icons.delete_forever_outlined,color: Colors.red,),
+                        children:  [
+                           GestureDetector(
+                             child: const Icon(Icons.mode_edit_outlined,color: Colors.green,),
+                             onTap: (){
+                               Get.to(()=>EditDish(name: chefName,price: price,
+                                 description: details,id: id,url: image));
+                             },
+                           ),
+                         const SizedBox(width: 15,),
+                         const Text(" / "),
+                          const SizedBox(width: 15,),
+                         GestureDetector(
+                           child: const  Icon(Icons.delete_forever_outlined,color: Colors.red,),
+                           onTap: ()async{
+                            await FirebaseFirestore.instance
+                                 .collection('dishes')
+                                 .doc(id)
+                                 .delete();
+
+                            Fluttertoast.showToast(msg: 'Deleted!');
+                           },
+                         ),
                         ],
                       ),
                     ],
@@ -184,6 +201,5 @@ dishCard(image, chefName, details) {
           )
         ],
       ),
-    ),
   );
 }

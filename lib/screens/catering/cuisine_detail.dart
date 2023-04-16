@@ -9,7 +9,11 @@ import '../../Constants.dart';
 import '../commonScreens/dishes/add_dish.dart';
 
 class CuisineDetail extends StatefulWidget {
-  const CuisineDetail({Key? key}) : super(key: key);
+
+ final String url,name;
+ final double price;
+
+  const CuisineDetail({Key? key, required this.url, required this.name, required this.price}) : super(key: key);
 
   @override
   State<CuisineDetail> createState() => _CuisineDetailState();
@@ -47,8 +51,8 @@ class _CuisineDetailState extends State<CuisineDetail> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(100.0),
-                child: const Image(
-                  image: AssetImage("assets/italian.jpg"),
+                child:  Image.network(
+                  widget.url,
                   width: 130,
                   height: 130,
                 ),
@@ -59,20 +63,20 @@ class _CuisineDetailState extends State<CuisineDetail> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Italian Cuisine",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                   Text(
+                   widget.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   const SizedBox(
                     width: 10,
                   ),
                   Icon(
-                    Icons.star,
+                    Icons.money,
                     color: Constant.white,
                     size: 15,
                   ),
                   const SizedBox(width: 5),
-                  const Text("4.5"),
+                   Text(widget.price.toString()),
                 ],
               ),
               const SizedBox(
@@ -157,12 +161,16 @@ class _CuisineDetailState extends State<CuisineDetail> {
           physics: const NeverScrollableScrollPhysics(),
           children: snapshot.data!.docs
               .map((DocumentSnapshot document) {
+            String docId = document.id;
             Map<String, dynamic> data =
             document.data()! as Map<String, dynamic>;
+
             return dishCard(
               data['url'],
               data['name'],
               data['description'],
+              data['price'],
+              docId
             );
           }).toList().cast(),
         );
