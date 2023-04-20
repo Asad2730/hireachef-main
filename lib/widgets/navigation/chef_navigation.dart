@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/screens/commonScreens/blogs/blogs.dart';
 import 'package:hireachef/screens/commonScreens/chat/chat_main.dart';
 import '../../Constants.dart';
 import '../../screens/chef/chef_home.dart';
@@ -28,6 +29,12 @@ chefNavigation(context, indexNo) {
         color: Colors.black,
       ),
       Icon(
+        Icons.notes,
+        size: 15,
+        color: Colors.black,
+      ),
+
+      Icon(
         Icons.person,
         size: 15,
         color: Colors.black,
@@ -51,6 +58,10 @@ chefNavigation(context, indexNo) {
         Get.offAll(() =>  OrdersTab.set(id: 2,));
       }
       if (index == 3) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        Get.offAll(() =>  Blogs.set(id: 2,));
+      }
+      if (index == 4) {
         await Future.delayed(const Duration(milliseconds: 200));
         Get.offAll(() => Profile.set(id:2));
       }

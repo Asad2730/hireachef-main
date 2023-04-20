@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hireachef/screens/catering/catering_home.dart';
 import 'package:hireachef/screens/commonScreens/chat/chat_main.dart';
 import '../../Constants.dart';
+import '../../screens/commonScreens/blogs/blogs.dart';
 import '../../screens/commonScreens/orders/orders_tab.dart';
 import '../../screens/commonScreens/profile.dart';
 
@@ -24,6 +25,11 @@ cateringNavigation(context, indexNo) {
       ),
       Icon(
         Icons.border_color_outlined,
+        size: 15,
+        color: Colors.black,
+      ),
+      Icon(
+        Icons.notes,
         size: 15,
         color: Colors.black,
       ),
@@ -51,6 +57,10 @@ cateringNavigation(context, indexNo) {
         Get.offAll(() =>  OrdersTab.set(id:3));
       }
       if (index == 3) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        Get.offAll(() =>  Blogs.set(id:3));
+      }
+      if (index == 4) {
         await Future.delayed(const Duration(milliseconds: 200));
         Get.offAll(() => Profile.set(id:3));
       }

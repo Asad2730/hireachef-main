@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hireachef/screens/commonScreens/blogs/blogs.dart';
 import 'package:hireachef/screens/commonScreens/chat/chat_main.dart';
 import 'package:hireachef/screens/commonScreens/profile.dart';
 import 'package:hireachef/screens/customer/home.dart';
@@ -29,6 +30,11 @@ navigationBar(context, indexNo) {
         color: Colors.black,
       ),
       Icon(
+        Icons.notes,
+        size: 15,
+        color: Colors.black,
+      ),
+      Icon(
         Icons.person,
         size: 15,
         color: Colors.black,
@@ -52,6 +58,10 @@ navigationBar(context, indexNo) {
         Get.offAll(() => const Notifications());
       }
       if (index == 3) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        Get.offAll(() => Blogs.set(id:1));
+      }
+      if (index == 4) {
         await Future.delayed(const Duration(milliseconds: 200));
         Get.offAll(() => Profile.set(id: 1,));
       }
