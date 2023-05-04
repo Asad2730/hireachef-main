@@ -223,7 +223,7 @@ class _HomeState extends State<Home> {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String cid = document.id;
-           
+
             if(op != 0){
               return chefCard('assets/chef.jpg', data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
