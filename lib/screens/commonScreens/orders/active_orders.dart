@@ -124,8 +124,6 @@ class _ActiveOrdersState extends State<ActiveOrders> {
       list.add(notification);
     }
 
-
-
     return list;
   }
 
@@ -152,6 +150,7 @@ class _ActiveOrdersState extends State<ActiveOrders> {
           itemCount: snapshot.data!.length,
           itemBuilder: (BuildContext context, int i) {
             var notification = snapshot.data![i];
+
             return activeOrderCard(notification.userName, notification.dishName, notification.time, notification.url);
           },
         );

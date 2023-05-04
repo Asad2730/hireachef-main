@@ -5,6 +5,7 @@ import 'package:hireachef/Helper.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
 
 import '../../Constants.dart';
+import '../../widgets/cards/customer/conversation_card.dart';
 import '../../widgets/cards/customer/notification_card.dart';
 
 class Notifications extends StatefulWidget {
@@ -59,14 +60,50 @@ class _NotificationsState extends State<Notifications> {
 
   }
 
-  Stream<QuerySnapshot> getData() {
-    return FirebaseFirestore.instance.collection('requests')
+
+
+
+  Future<List<Map<String, dynamic>>> getData2() async {
+    List<Future<Map<String, dynamic>>> userQueries = [];
+
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection('requests')
         .where('uid', isEqualTo: Helper.loggedUser.id)
-         .where('status',isEqualTo: 1)
-        .snapshots();
+        .where('status',isEqualTo: 1)
+        .get();
+
+    Set<String> processedIds = {}; // Store processed docIds in a set
+
+    requests.docs.forEach((requestDoc) {
+     // print('ok ${requestDoc.data()['time']}');
+      String docId = requestDoc
+          .get('ids')
+          .firstWhere((id) => id != Helper.loggedUser.id);
+      if (!processedIds.contains(docId)) {
+        userQueries.add(FirebaseFirestore.instance
+            .collection('users')
+            .doc(docId)
+            .get()
+            .then((doc) => {'id': doc.id,'data':requestDoc.data(), ...doc.data()!}));
+        processedIds.add(docId); // Add processed docId to the set
+      }
+    });
+
+    List<Map<String, dynamic>> users = await Future.wait(userQueries);
+    return users;
   }
 
-  Widget _stream() {
+
+  Stream<QuerySnapshot> getData() {
+
+    var requests = FirebaseFirestore.instance.collection('requests')
+        .where('uid', isEqualTo: Helper.loggedUser.id)
+        .where('status',isEqualTo: 1)
+        .snapshots();
+
+    return requests;
+  }
+
+  Widget _stream2() {
 
     return StreamBuilder<QuerySnapshot>(
       stream: getData(),
@@ -101,6 +138,8 @@ class _NotificationsState extends State<Notifications> {
               .map((DocumentSnapshot document) {
             Map<String, dynamic> data =
             document.data()! as Map<String, dynamic>;
+            print(data);
+            print(Helper.loggedUser.id);
             return notificationCard(
                 "Lorem User",
                 "has accepted your request",
@@ -109,6 +148,33 @@ class _NotificationsState extends State<Notifications> {
           }).toList().cast(),
         );
 
+      },
+    );
+  }
+
+  Widget _stream() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: getData2(),
+      builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(top: 16),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: snapshot.data!.length,
+          itemBuilder: (BuildContext context, int index) {
+            Map<String, dynamic> data = snapshot.data![index];
+            String id = data['id'];
+            print('Req ${data['data']['time']}');
+            return notificationCard(
+                data['username'],
+                "has accepted your request",
+                data['data']['time'],
+                'assets/avatar.png');
+          },
+        );
       },
     );
   }
