@@ -17,10 +17,15 @@ class ChefHome extends StatefulWidget {
 class _ChefHomeState extends State<ChefHome> {
   TextEditingController search = TextEditingController();
   bool searchBoolean = false;
-
+  String searchText = '';
   searchTextField() {
     return TextField(
       controller: search,
+      onChanged: (value) {
+        setState(() {
+          searchText = value;
+        });
+      },
     );
   }
 
@@ -47,6 +52,8 @@ class _ChefHomeState extends State<ChefHome> {
               setState(
                     () {
                   searchBoolean = true;
+                  searchText = '';
+                  search.clear();
                 },
               );
             },
@@ -59,6 +66,8 @@ class _ChefHomeState extends State<ChefHome> {
               setState(
                     () {
                   searchBoolean = false;
+                  searchText = '';
+                  search.clear();
                 },
               );
             },
@@ -135,9 +144,17 @@ class _ChefHomeState extends State<ChefHome> {
 
 
   Stream<QuerySnapshot> getDishes() {
-    return FirebaseFirestore.instance.collection('dishes')
-        .where('uid', isEqualTo:Helper.loggedUser.id)
-        .snapshots();
+    if(searchText != ''){
+      return FirebaseFirestore.instance.collection('dishes')
+          .where('uid', isEqualTo:Helper.loggedUser.id)
+          .where('name', isEqualTo:searchText)
+          .snapshots();
+    }else{
+      return FirebaseFirestore.instance.collection('dishes')
+          .where('uid', isEqualTo:Helper.loggedUser.id)
+          .snapshots();
+    }
+
   }
 
 

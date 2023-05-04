@@ -18,10 +18,16 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   TextEditingController search = TextEditingController();
   bool searchBoolean = false;
+  String searchText = '';
 
   searchTextField() {
     return TextField(
       controller: search,
+      onChanged: (value) {
+        setState(() {
+          searchText = value;
+        });
+      },
     );
   }
 
@@ -51,6 +57,8 @@ class _HomeState extends State<Home> {
                     setState(
                       () {
                         searchBoolean = true;
+                        searchText = '';
+                        search.clear();
                       },
                     );
                   },
@@ -63,6 +71,8 @@ class _HomeState extends State<Home> {
                     setState(
                       () {
                         searchBoolean = false;
+                        searchText = '';
+                        search.clear();
                       },
                     );
                   },
@@ -122,6 +132,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
               _card(1,Axis.vertical),
+              _card2(1,Axis.vertical),
             ],
           ),
         ),
@@ -131,13 +142,28 @@ class _HomeState extends State<Home> {
   }
 
   Stream<QuerySnapshot> getData() {
-    if(Helper.type == 4){
-      return FirebaseFirestore.instance.collection('cuisines')
-          .snapshots();
+
+    if(searchText != ''){
+
+      if(Helper.type == 4){
+        return FirebaseFirestore.instance.collection('cuisines')
+            .where('name',isEqualTo:searchText)
+            .snapshots();
+      }else{
+        return FirebaseFirestore.instance.collection('users')
+            .where('type',isEqualTo: Helper.type)
+            .where('username',isEqualTo:searchText)
+            .snapshots();
+      }
     }else{
-      return FirebaseFirestore.instance.collection('users')
-          .where('type',isEqualTo: Helper.type)
-          .snapshots();
+      if(Helper.type == 4){
+        return FirebaseFirestore.instance.collection('cuisines')
+            .snapshots();
+      }else{
+        return FirebaseFirestore.instance.collection('users')
+            .where('type',isEqualTo: Helper.type)
+            .snapshots();
+      }
     }
 
   }
@@ -166,7 +192,39 @@ class _HomeState extends State<Home> {
             if(op == 0){
               return chefCard2('assets/chef.jpg',data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
-            }else{
+            }
+          },
+        );
+      },
+    );
+
+  }
+
+
+  Widget _card2(int op, Axis axis){
+    print('okk ');
+    String name = 'username';
+    if(Helper.type == 4){
+      name='name';
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: getData(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        return ListView.builder(
+          scrollDirection: axis,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: snapshot.data!.docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            DocumentSnapshot document = snapshot.data!.docs[index];
+            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+            String cid = document.id;
+           
+            if(op != 0){
               return chefCard('assets/chef.jpg', data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
             }

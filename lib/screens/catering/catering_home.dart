@@ -18,10 +18,16 @@ class CateringHome extends StatefulWidget {
 class _CateringHomeState extends State<CateringHome> {
   TextEditingController search = TextEditingController();
   bool searchBoolean = false;
+  String searchText = '';
 
   searchTextField() {
     return TextField(
       controller: search,
+      onChanged: (value) {
+        setState(() {
+          searchText = value;
+        });
+      },
     );
   }
 
@@ -47,6 +53,8 @@ class _CateringHomeState extends State<CateringHome> {
                     setState(
                       () {
                         searchBoolean = true;
+                        searchText = '';
+                        search.clear();
                       },
                     );
                   },
@@ -59,6 +67,8 @@ class _CateringHomeState extends State<CateringHome> {
                     setState(
                       () {
                         searchBoolean = false;
+                        searchText = '';
+                        search.clear();
                       },
                     );
                   },
@@ -137,9 +147,18 @@ class _CateringHomeState extends State<CateringHome> {
 
 
   Stream<QuerySnapshot> getCuisines() {
-    return FirebaseFirestore.instance.collection('cuisines')
-        .where('uid', isEqualTo:Helper.loggedUser.id)
-        .snapshots();
+
+    if(searchText != ''){
+      return FirebaseFirestore.instance.collection('cuisines')
+          .where('uid', isEqualTo:Helper.loggedUser.id)
+          .where('name', isEqualTo:searchText)
+          .snapshots();
+    }else{
+      return FirebaseFirestore.instance.collection('cuisines')
+          .where('uid', isEqualTo:Helper.loggedUser.id)
+          .snapshots();
+    }
+
   }
 
 
