@@ -144,10 +144,11 @@ class _ChefHomeState extends State<ChefHome> {
 
 
   Stream<QuerySnapshot> getDishes() {
+
     if(searchText != ''){
       return FirebaseFirestore.instance.collection('dishes')
           .where('uid', isEqualTo:Helper.loggedUser.id)
-          .where('name', isEqualTo:searchText)
+          .where('name',whereIn: [searchText.toLowerCase(),searchText.toUpperCase()])
           .snapshots();
     }else{
       return FirebaseFirestore.instance.collection('dishes')
@@ -174,6 +175,7 @@ class _ChefHomeState extends State<ChefHome> {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String docId = document.id;
+            print(data['name']);
             return  dishCard(data['url'],data['name'] ,data['description'], data['price'],docId);
           },
         );

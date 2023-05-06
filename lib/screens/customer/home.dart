@@ -147,12 +147,12 @@ class _HomeState extends State<Home> {
 
       if(Helper.type == 4){
         return FirebaseFirestore.instance.collection('cuisines')
-            .where('name',isEqualTo:searchText)
+            .where('name',whereIn:[searchText.toLowerCase(),searchText.toUpperCase()])
             .snapshots();
       }else{
         return FirebaseFirestore.instance.collection('users')
             .where('type',isEqualTo: Helper.type)
-            .where('username',isEqualTo:searchText)
+            .where('username',whereIn:[searchText.toLowerCase(),searchText.toUpperCase()])
             .snapshots();
       }
     }else{

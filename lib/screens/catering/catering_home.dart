@@ -151,7 +151,7 @@ class _CateringHomeState extends State<CateringHome> {
     if(searchText != ''){
       return FirebaseFirestore.instance.collection('cuisines')
           .where('uid', isEqualTo:Helper.loggedUser.id)
-          .where('name', isEqualTo:searchText)
+          .where('name',whereIn:[searchText.toLowerCase(),searchText.toUpperCase()])
           .snapshots();
     }else{
       return FirebaseFirestore.instance.collection('cuisines')
