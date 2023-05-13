@@ -190,8 +190,15 @@ class _HomeState extends State<Home> {
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String cid = document.id;
             if(op == 0){
-              return chefCard2('assets/chef.jpg',data[name],
-                  "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
+              return chefCard2(
+                  'assets/chef.jpg',
+                  data[name],
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",
+                  data,
+                  cid,
+                  data['rating'] ?? 0.0
+              );
+
             }
           },
         );
@@ -226,7 +233,9 @@ class _HomeState extends State<Home> {
 
             if(op != 0){
               return chefCard('assets/chef.jpg', data[name],
-                  "a professional cook, typically the chief cook in a restaurant or hotel.",data,cid);
+                  "a professional cook, typically the chief cook in a restaurant or hotel.",
+                  data,cid,  data['rating'] ?? 0.0
+              );
             }
 
           },

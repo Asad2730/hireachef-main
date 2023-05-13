@@ -12,7 +12,7 @@ import '../../../widgets/cards/customer/conversation_card.dart';
 class ChatMain extends StatefulWidget {
   ChatMain({Key? key}) : super(key: key);
   var id;
-  ChatMain.set({this.id});
+  ChatMain.set({super.key, this.id});
   @override
   State<ChatMain> createState() => _ChatMainState();
 }

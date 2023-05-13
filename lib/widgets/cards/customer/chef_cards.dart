@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Helper.dart';
 import 'package:hireachef/screens/customer/chef_detail.dart';
 
 import '../../../Constants.dart';
 
-chefCard(image, chefName, details, Map<String, dynamic> data, String cid) {
+chefCard(image, chefName, details, Map<String, dynamic> data, String cid,rate) {
 
 
   return GestureDetector(
@@ -69,6 +70,16 @@ chefCard(image, chefName, details, Map<String, dynamic> data, String cid) {
                         maxLines: 4,
                         style: const TextStyle(fontSize: 12),
                       ),
+                      RatingBarIndicator(
+                        rating: rate,
+                        itemBuilder: (context, index) => const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        itemCount: 5,
+                        itemSize: 30.0,
+                        direction: Axis.horizontal,
+                      ),
                     ],
                   ),
                   const SizedBox(
@@ -85,7 +96,7 @@ chefCard(image, chefName, details, Map<String, dynamic> data, String cid) {
   );
 }
 
-chefCard2(image, chefName, details , Map<String, dynamic> data, String cid) {
+chefCard2(image, chefName, details , Map<String, dynamic> data, String cid,double rate) {
   return GestureDetector(
     onTap: (){
       print('$data');
@@ -140,6 +151,16 @@ chefCard2(image, chefName, details , Map<String, dynamic> data, String cid) {
                     overflow: TextOverflow.fade,
                     maxLines: 2,
                     style: const TextStyle(fontSize: 12),
+                  ),
+                  RatingBarIndicator(
+                    rating: rate,
+                    itemBuilder: (context, index) => const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    itemCount: 5,
+                    itemSize: 20.0,
+                    direction: Axis.horizontal,
                   ),
                   const SizedBox(
                     height: 10,

@@ -6,6 +6,7 @@ import 'package:hireachef/screens/commonScreens/chat/chat_main.dart';
 import 'package:hireachef/screens/commonScreens/profile.dart';
 import 'package:hireachef/screens/customer/home.dart';
 import 'package:hireachef/screens/customer/notification.dart';
+import 'package:hireachef/screens/customer/rate.dart';
 
 import '../../Constants.dart';
 
@@ -39,6 +40,11 @@ navigationBar(context, indexNo) {
         size: 15,
         color: Colors.black,
       ),
+      Icon(
+        Icons.star_rate,
+        size: 15,
+        color: Colors.black,
+      ),
     ],
     index: indexNo,
     height: 50,
@@ -64,6 +70,10 @@ navigationBar(context, indexNo) {
       if (index == 4) {
         await Future.delayed(const Duration(milliseconds: 200));
         Get.offAll(() => Profile.set(id: 1,));
+      }
+      if (index == 5) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        Get.offAll(() => const Rate());
       }
     },
   );

@@ -118,9 +118,9 @@ class _NotificationsState extends State<Notifications> {
         }
 
         if(snapshot.data?.size == 0){
-          return Column(
+          return const Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children:const [
+            children:[
               SizedBox(height: 60,),
               Image(image: AssetImage('assets/notification.png'),width: 200,),
               SizedBox(height: 20,),
@@ -138,8 +138,6 @@ class _NotificationsState extends State<Notifications> {
               .map((DocumentSnapshot document) {
             Map<String, dynamic> data =
             document.data()! as Map<String, dynamic>;
-            print(data);
-            print(Helper.loggedUser.id);
             return notificationCard(
                 "Lorem User",
                 "has accepted your request",
@@ -159,6 +157,9 @@ class _NotificationsState extends State<Notifications> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
+        else if (snapshot.data?.isEmpty ?? true) {
+          return const Text('No data');
+        }
         return ListView.builder(
           shrinkWrap: true,
           padding: const EdgeInsets.only(top: 16),
@@ -167,7 +168,6 @@ class _NotificationsState extends State<Notifications> {
           itemBuilder: (BuildContext context, int index) {
             Map<String, dynamic> data = snapshot.data![index];
             String id = data['id'];
-            print('Req ${data['data']['time']}');
             return notificationCard(
                 data['username'],
                 "has accepted your request",
