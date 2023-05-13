@@ -191,7 +191,7 @@ class _HomeState extends State<Home> {
             String cid = document.id;
             if(op == 0){
               return chefCard2(
-                  'assets/chef.jpg',
+                  data['pic']??-1,
                   data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",
                   data,
@@ -209,7 +209,7 @@ class _HomeState extends State<Home> {
 
 
   Widget _card2(int op, Axis axis){
-    print('okk ');
+
     String name = 'username';
     if(Helper.type == 4){
       name='name';
@@ -232,7 +232,7 @@ class _HomeState extends State<Home> {
             String cid = document.id;
 
             if(op != 0){
-              return chefCard('assets/chef.jpg', data[name],
+              return chefCard( data['pic'] ??-1, data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",
                   data,cid,  data['rating'] ?? 0.0
               );

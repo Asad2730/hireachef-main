@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Constants.dart';
 import 'package:hireachef/screens/auth/login.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../widgets/textfields/text_field.dart';
 
@@ -21,6 +25,7 @@ class _SignupState extends State<Signup> {
   TextEditingController password = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController city = TextEditingController();
+  var imageFile;
 
   int radioValue = 1;
   handleRadioValueChange(int value) {
@@ -28,6 +33,20 @@ class _SignupState extends State<Signup> {
       radioValue = value;
     });
   }
+
+  getFromGallery() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +56,7 @@ class _SignupState extends State<Signup> {
         color: Constant.orange,
         child: Center(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 25),
             width: Get.width - 20,
             height: 650,
             decoration: const BoxDecoration(
@@ -49,10 +68,21 @@ class _SignupState extends State<Signup> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Image(
-                  image: AssetImage('assets/logo-circle.png'),
-                  width: 100,
+
+                GestureDetector(
+                  onTap: (){
+                    getFromGallery();
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(200.0),
+                    child: imageFile!=null?Image.file(imageFile,width: 130,height: 130,):const Image(
+                      image: AssetImage("assets/camera.png"),
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
                 ),
+
                 const SizedBox(
                   height: 20,
                 ),
@@ -159,12 +189,19 @@ class _SignupState extends State<Signup> {
 
   void addUser() async{
     try{
+      String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      final Reference ref = storage.ref().child('profile/$uniqueFileName');
+      final TaskSnapshot uploadTask = await ref.putFile(imageFile);
+      final String downloadURL = await uploadTask.ref.getDownloadURL();
+      final FirebaseFirestore db = FirebaseFirestore.instance;
       Map<String,dynamic> data = {
         'username':username.text.toString().toLowerCase(),
         'email':email.text.toString().toLowerCase(),
         'password':password.text.toString(),
         'location':city.text.toString(),
-        'type':radioValue
+        'type':radioValue,
+        'pic':downloadURL,
       };
 
       await db.collection('users').add(data);

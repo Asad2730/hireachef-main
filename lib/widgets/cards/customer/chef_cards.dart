@@ -41,10 +41,14 @@ chefCard(image, chefName, details, Map<String, dynamic> data, String cid,rate) {
                   data['url'],
                   width: 130,
                   height: 130,
-                ):Image(
-                  image: AssetImage(image),
-                  width: 130,
+                ):image == -1?const Image(
+                  image: AssetImage("assets/chef.jpg"),
                   height: 130,
+                  width: 130,
+                ):Image.network(
+                  image,
+                  height: 130,
+                  width: 130,
                 ),
               ),
             ),
@@ -127,8 +131,12 @@ chefCard2(image, chefName, details , Map<String, dynamic> data, String cid,doubl
              data['url'],
              height: 130,
              width: 130,
-           ):Image(
-             image: AssetImage(image),
+           ):image == -1?const Image(
+             image: AssetImage("assets/chef.jpg"),
+             height: 130,
+             width: 130,
+           ):Image.network(
+             image,
              height: 130,
              width: 130,
            ),
