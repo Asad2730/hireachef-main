@@ -102,10 +102,7 @@ chefCard(image, chefName, details, Map<String, dynamic> data, String cid,rate) {
 
 chefCard2(image, chefName, details , Map<String, dynamic> data, String cid,double rate) {
   return GestureDetector(
-    onTap: (){
-      print('$data');
-      Get.to(()=> ChefDetail(cid: cid,data:data));
-    },
+    onTap: ()=> Get.to(()=> ChefDetail(cid: cid,data:data)),
     child: Container(
       width: Get.width / 2.5,
       height: 230,

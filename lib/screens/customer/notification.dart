@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Helper.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
-
 import '../../Constants.dart';
-import '../../widgets/cards/customer/conversation_card.dart';
 import '../../widgets/cards/customer/notification_card.dart';
 
 class Notifications extends StatefulWidget {
@@ -73,7 +71,7 @@ class _NotificationsState extends State<Notifications> {
 
     Set<String> processedIds = {}; // Store processed docIds in a set
 
-    requests.docs.forEach((requestDoc) {
+    for (var requestDoc in requests.docs) {
      // print('ok ${requestDoc.data()['time']}');
       String docId = requestDoc
           .get('ids')
@@ -86,7 +84,7 @@ class _NotificationsState extends State<Notifications> {
             .then((doc) => {'id': doc.id,'data':requestDoc.data(), ...doc.data()!}));
         processedIds.add(docId); // Add processed docId to the set
       }
-    });
+    }
 
     List<Map<String, dynamic>> users = await Future.wait(userQueries);
     return users;
@@ -103,52 +101,52 @@ class _NotificationsState extends State<Notifications> {
     return requests;
   }
 
-  Widget _stream2() {
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: getData(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-
-        if (snapshot.hasError) {
-          return const Text('Something went wrong!');
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text("Loading");
-        }
-
-        if(snapshot.data?.size == 0){
-          return const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:[
-              SizedBox(height: 60,),
-              Image(image: AssetImage('assets/notification.png'),width: 200,),
-              SizedBox(height: 20,),
-              Text("Nothing here!!!",style: TextStyle(fontSize: 16),)
-            ],
-          );
-        }
-
-        return ListView(
-          reverse: true,
-          shrinkWrap: true,
-          padding: const EdgeInsets.only(top: 10,bottom: 10),
-          physics: const NeverScrollableScrollPhysics(),
-          children: snapshot.data!.docs
-              .map((DocumentSnapshot document) {
-            Map<String, dynamic> data =
-            document.data()! as Map<String, dynamic>;
-            return notificationCard(
-                "Lorem User",
-                "has accepted your request",
-                data['time'],
-                'assets/avatar.png');
-          }).toList().cast(),
-        );
-
-      },
-    );
-  }
+  // Widget _stream2() {
+  //
+  //   return StreamBuilder<QuerySnapshot>(
+  //     stream: getData(),
+  //     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  //
+  //       if (snapshot.hasError) {
+  //         return const Text('Something went wrong!');
+  //       }
+  //
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const Text("Loading");
+  //       }
+  //
+  //       if(snapshot.data?.size == 0){
+  //         return const Column(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children:[
+  //             SizedBox(height: 60,),
+  //             Image(image: AssetImage('assets/notification.png'),width: 200,),
+  //             SizedBox(height: 20,),
+  //             Text("Nothing here!!!",style: TextStyle(fontSize: 16),)
+  //           ],
+  //         );
+  //       }
+  //
+  //       return ListView(
+  //         reverse: true,
+  //         shrinkWrap: true,
+  //         padding: const EdgeInsets.only(top: 10,bottom: 10),
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         children: snapshot.data!.docs
+  //             .map((DocumentSnapshot document) {
+  //           Map<String, dynamic> data =
+  //           document.data()! as Map<String, dynamic>;
+  //           return notificationCard(
+  //               "Lorem User",
+  //               "has accepted your request",
+  //               data['time'],
+  //               'assets/avatar.png');
+  //         }).toList().cast(),
+  //       );
+  //
+  //     },
+  //   );
+  // }
 
   Widget _stream() {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -167,7 +165,7 @@ class _NotificationsState extends State<Notifications> {
           itemCount: snapshot.data!.length,
           itemBuilder: (BuildContext context, int index) {
             Map<String, dynamic> data = snapshot.data![index];
-            String id = data['id'];
+
             return notificationCard(
                 data['username'],
                 "has accepted your request",

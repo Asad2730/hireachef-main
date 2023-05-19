@@ -133,8 +133,8 @@ class _LoginState extends State<Login> {
 
   Future loginUser() async{
       QuerySnapshot snapshot = await db.collection('users')
-          .where('username',isEqualTo: username.text.toString().trim().toLowerCase())
-          .where('password',isEqualTo: password.text.toString().trim())
+          .where('username',isEqualTo: username.text.toString().toLowerCase())
+          .where('password',isEqualTo: password.text.toString())
         .get();
       if(snapshot.docs.isNotEmpty){
         DocumentSnapshot data = snapshot.docs.first;
