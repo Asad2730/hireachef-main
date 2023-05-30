@@ -27,7 +27,8 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name + " has placed order for " + dish),
+                // Text(name + " has placed order for " + dish),
+                Text(name + " has send you request at"),
                 const SizedBox(
                   height: 5,
                 ),

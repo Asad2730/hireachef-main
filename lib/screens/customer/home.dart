@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,7 +6,6 @@ import 'package:hireachef/Constants.dart';
 import 'package:hireachef/widgets/cards/customer/chef_cards.dart';
 import 'package:hireachef/widgets/navigation/bottom_navigation.dart';
 import 'package:hireachef/widgets/navigation/top_nav_card.dart';
-
 import '../../Helper.dart';
 
 class Home extends StatefulWidget {
@@ -19,6 +19,7 @@ class _HomeState extends State<Home> {
   TextEditingController search = TextEditingController();
   bool searchBoolean = false;
   String searchText = '';
+  var usernames = [];
 
   searchTextField() {
     return TextField(
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void refresh(){
+  void refresh() {
     setState(() {});
   }
 
@@ -53,7 +54,8 @@ class _HomeState extends State<Home> {
             ? [
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {
+                  onPressed: ()  {
+                    usernames.clear();
                     setState(
                       () {
                         searchBoolean = true;
@@ -68,6 +70,7 @@ class _HomeState extends State<Home> {
                 IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: () {
+                    usernames.clear();
                     setState(
                       () {
                         searchBoolean = false;
@@ -103,9 +106,9 @@ class _HomeState extends State<Home> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    topNavCard("Chefs",2,refresh),
-                    topNavCard("Caterers",3,refresh),
-                    topNavCard("Cuisines",4,refresh),
+                    topNavCard("Chefs", 2, refresh),
+                    topNavCard("Caterers", 3, refresh),
+                    topNavCard("Cuisines", 4, refresh),
                   ],
                 ),
               ),
@@ -121,7 +124,7 @@ class _HomeState extends State<Home> {
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 width: Get.width,
                 height: 240,
-                child:  _card(0,Axis.horizontal),
+                child: _card(0, Axis.horizontal),
               ),
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
@@ -131,8 +134,8 @@ class _HomeState extends State<Home> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-              _card(1,Axis.vertical),
-              _card2(1,Axis.vertical),
+              _card(1, Axis.vertical),
+              _card2(1, Axis.vertical),
             ],
           ),
         ),
@@ -141,42 +144,91 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Stream<QuerySnapshot> getData() {
-
-    if(searchText != ''){
-
-      if(Helper.type == 4){
-        return FirebaseFirestore.instance.collection('cuisines')
-            .where('name',whereIn:[searchText.toLowerCase(),searchText.toUpperCase()])
-            .snapshots();
-      }else{
-        return FirebaseFirestore.instance.collection('users')
-            .where('type',isEqualTo: Helper.type)
-            .where('username',whereIn:[searchText.toLowerCase(),searchText.toUpperCase()])
-            .snapshots();
-      }
-    }else{
-      if(Helper.type == 4){
-        return FirebaseFirestore.instance.collection('cuisines')
-            .snapshots();
-      }else{
-        return FirebaseFirestore.instance.collection('users')
-            .where('type',isEqualTo: Helper.type)
-            .snapshots();
-      }
-    }
-
+  Stream<QuerySnapshot> getDatas() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('username', whereIn: usernames)
+        .snapshots();
   }
 
-  Widget _card(int op, Axis axis){
+  Stream<QuerySnapshot> getData() {
+    //usernames.clear();
+    if (searchText != '') {
+      if (Helper.type == 4) {
+        return FirebaseFirestore.instance.collection('cuisines').where('name',
+            whereIn: [
+              searchText.toLowerCase(),
+              searchText.toUpperCase()
+            ]).snapshots();
+      } else {
+        Stream<QuerySnapshot<Map<String, dynamic>>> res = const Stream.empty();
+        var rs = FirebaseFirestore.instance
+            .collection('users')
+            .where('type', isEqualTo: Helper.type)
+            .where('username', whereIn: [
+          searchText.toLowerCase(),
+          searchText.toUpperCase()
+        ]).snapshots();
 
-    String name = 'username';
-    if(Helper.type == 4){
-       name='name';
+        rs.listen((event) {
+          int len = event.size;
+          if (len == 0) {
+
+            var dishes = FirebaseFirestore.instance
+                .collection('dishes')
+                .where('name', whereIn: [
+              searchText.toLowerCase(),
+              searchText.toUpperCase()
+            ]).snapshots();
+
+            dishes.listen((e) {
+              int len2 = e.size;
+              if (len2 != 0) {
+                for (var doc in e.docs) {
+                  var uid = doc.data()['uid'];
+                  var r = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(uid)
+                      .snapshots();
+                  r.listen((data) {
+                    var name = data.data()!['username'];
+                    if (name != null && name.isNotEmpty) {
+                      if (!usernames.contains(name)) {
+                        usernames.add(name);
+                        print(name);
+                      }
+                    }
+                  });
+                }
+              }
+            });
+          } else {
+            rs = res;
+          }
+        });
+
+        return rs;
+      }
+    } else {
+      if (Helper.type == 4) {
+        return FirebaseFirestore.instance.collection('cuisines').snapshots();
+      } else {
+        return FirebaseFirestore.instance
+            .collection('users')
+            .where('type', isEqualTo: Helper.type)
+            .snapshots();
+      }
     }
+  }
 
+  Widget _card(int op, Axis axis) {
+    String name = 'username';
+    if (Helper.type == 4) {
+      name = 'name';
+    }
+    print('Empty:${usernames.isEmpty}');
     return StreamBuilder<QuerySnapshot>(
-      stream: getData(),
+      stream: usernames.isEmpty ? getData() : getDatas(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
@@ -189,34 +241,30 @@ class _HomeState extends State<Home> {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String cid = document.id;
-            if(op == 0){
+
+            if (op == 0) {
               return chefCard2(
-                  data['pic']??-1,
+                  data['pic'] ?? -1,
                   data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",
                   data,
                   cid,
-                  data['rating'] ?? 0.0
-              );
-
+                  data['rating'] ?? 0.0);
             }
           },
         );
       },
     );
-
   }
 
-
-  Widget _card2(int op, Axis axis){
-
+  Widget _card2(int op, Axis axis) {
     String name = 'username';
-    if(Helper.type == 4){
-      name='name';
+    if (Helper.type == 4) {
+      name = 'name';
     }
 
     return StreamBuilder<QuerySnapshot>(
-      stream: getData(),
+      stream: usernames.isEmpty ? getData() : getDatas(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
@@ -230,19 +278,18 @@ class _HomeState extends State<Home> {
             DocumentSnapshot document = snapshot.data!.docs[index];
             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
             String cid = document.id;
-
-            if(op != 0){
-              return chefCard( data['pic'] ??-1, data[name],
+            if (op != 0) {
+              return chefCard(
+                  data['pic'] ?? -1,
+                  data[name],
                   "a professional cook, typically the chief cook in a restaurant or hotel.",
-                  data,cid,  data['rating'] ?? 0.0
-              );
+                  data,
+                  cid,
+                  data['rating'] ?? 0.0);
             }
-
           },
         );
       },
     );
-
   }
-
 }
