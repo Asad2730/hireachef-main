@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../Constants.dart';
+import '../../../Helper.dart';
 import '../../../widgets/cards/chef/order_card.dart';
 
 class CompletedOrders extends StatefulWidget {
@@ -32,13 +34,136 @@ class _CompletedOrdersState extends State<CompletedOrders> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              completedOrderCard("Dummy User","Burger","9:59pm",'assets/avatar-2.jpg'),
-              completedOrderCard("Dummy User","Burger","9:59pm",'assets/avatar-2.jpg'),
-              completedOrderCard("Dummy User","Burger","9:59pm",'assets/avatar-2.jpg')
+                 _list(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Future<List<Notifications>> getData() async {
+    List<Notifications> list = [];
+    List<Temp> temp1 = [],
+        temp2 = [],
+        tl = [];
+
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection(
+        'requests')
+        .where('status', isEqualTo: 3)
+        .where('ids', arrayContainsAny: [Helper.loggedUser.id])
+        .get();
+
+    List<Future<void>> futures = [];
+
+    for (var i in requests.docs) {
+      String uid = i.get('uid');
+      String dishId = i.get('dishId');
+      String time = i.get('time');
+      String dId = i.get('dishId');
+      DocumentReference user = FirebaseFirestore.instance.collection('users')
+          .doc(uid);
+      futures.add(user.get().then((value) {
+        var t = Temp();
+        t.ob1 = value.get('username');
+        t.ob2 = time;
+        temp1.add(t);
+      }));
+
+      if (Helper.loggedUser.type == 2) {
+        if(dId == ''){
+
+          DocumentReference user = FirebaseFirestore.instance.collection('users')
+              .doc(uid);
+          futures.add(user.get().then((value) {
+            var t = Temp();
+            var url ='https://img.freepik.com/free-vector/creative-chef-logo-template_23-2148980376.jpg?w=740&t=st=1685642117~exp=1685642717~hmac=d032bcda46b0eb90a5ca29247e248dd5c35b552b0af805eeddc45923f77ebcbc';
+            t.ob1 = '';
+            t.ob2 = url;
+            temp2.add(t);
+          }));
+
+        }else{
+          DocumentReference dish = FirebaseFirestore.instance.collection(
+              'dishes')
+              .doc(dishId);
+          futures.add(dish.get().then((value) {
+            var t = Temp();
+            t.ob1 = value.get('name');
+            t.ob2 = value.get('url');
+            temp2.add(t);
+          }));
+
+        }
+
+      } else {
+
+        DocumentReference cuisines = FirebaseFirestore.instance.collection(
+            'cuisines').doc(dishId);
+        futures.add(cuisines.get().then((value) {
+          if (value.exists) {
+            var t = Temp();
+            t.ob1 = value.get('name');
+            t.ob2 = value.get('url');
+            tl.add(t);
+            // temp2.add(t);
+          }
+        }));
+
+        temp2 = tl;
+      }
+    }
+
+    await Future.wait(futures);
+
+    for (int i = 0; i < temp1.length; i++) {
+
+      var notification = Notifications();
+      notification.userName = temp1.elementAt(i).ob1;
+      notification.time = temp1.elementAt(i).ob2;
+      notification.dishName = temp2.elementAt(i).ob1;
+      notification.url = temp2.elementAt(i).ob2;
+
+      list.add(notification);
+    }
+
+
+
+    return list;
+  }
+
+
+
+
+
+  Widget _list() {
+    return FutureBuilder<List<Notifications>>(
+      future: getData(),
+      builder: (BuildContext context, AsyncSnapshot<List<Notifications>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasError) {
+          return const Text('');
+        }
+        if (snapshot.hasData && snapshot.data!.isEmpty) {
+          return const Text('No data found.');
+        }
+        return ListView.builder(
+          reverse: true,
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(top: 10,bottom: 10),
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: snapshot.data!.length,
+          itemBuilder: (BuildContext context, int i) {
+            var notification = snapshot.data![i];
+            return completedOrderCard(notification.userName,notification.dishName,notification.time,notification.url);
+          },
+        );
+      },
+    );
+  }
+}
+class Temp{
+  late String ob1,ob2;
 }

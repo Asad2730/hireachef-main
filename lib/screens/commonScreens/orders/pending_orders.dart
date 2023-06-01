@@ -52,22 +52,25 @@ class _PendingOrdersState extends State<PendingOrders> {
 
   Future<List<Notifications>> getData() async {
     List<Notifications> list = [];
-    List<Temp> temp1 = [], temp2 = [],tl=[];
+    List<Temp> temp1 = [],
+        temp2 = [],
+        tl = [];
 
-    QuerySnapshot requests = await FirebaseFirestore.instance.collection('requests')
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection(
+        'requests')
         .where('status', isEqualTo: 0)
-        .where('ids',arrayContainsAny: [Helper.loggedUser.id])
+        .where('ids', arrayContainsAny: [Helper.loggedUser.id])
         .get();
 
     List<Future<void>> futures = [];
 
     for (var i in requests.docs) {
-
       String uid = i.get('uid');
       String dishId = i.get('dishId');
       String time = i.get('time');
-
-      DocumentReference user = FirebaseFirestore.instance.collection('users').doc(uid);
+      String dId = i.get('dishId');
+      DocumentReference user = FirebaseFirestore.instance.collection('users')
+          .doc(uid);
       futures.add(user.get().then((value) {
         var t = Temp();
         t.ob1 = value.get('username');
@@ -76,49 +79,54 @@ class _PendingOrdersState extends State<PendingOrders> {
         temp1.add(t);
       }));
 
-      if(Helper.loggedUser.type == 2){
+        if (Helper.loggedUser.type == 2) {
+         if(dId == ''){
 
-        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-        futures.add(dish.get().then((value) {
-          var t = Temp();
-          t.ob1 = value.get('name');
-          t.ob2 = value.get('url');
-          temp2.add(t);
-        }));
+           DocumentReference user = FirebaseFirestore.instance.collection('users')
+               .doc(uid);
+           futures.add(user.get().then((value) {
+             var t = Temp();
+             var url ='https://img.freepik.com/free-vector/creative-chef-logo-template_23-2148980376.jpg?w=740&t=st=1685642117~exp=1685642717~hmac=d032bcda46b0eb90a5ca29247e248dd5c35b552b0af805eeddc45923f77ebcbc';
+             t.ob1 = '';
+             t.ob2 = url;
+             temp2.add(t);
+           }));
 
-      }else{
-
-
-        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-
-        futures.add(dish.get().then((value) {
-           if(value.exists){
+         }else{
+           DocumentReference dish = FirebaseFirestore.instance.collection(
+               'dishes')
+               .doc(dishId);
+           futures.add(dish.get().then((value) {
              var t = Temp();
              t.ob1 = value.get('name');
              t.ob2 = value.get('url');
-             tl.add(t);
-             //temp2.add(t);
-           }
-        }));
+             temp2.add(t);
+           }));
 
-        DocumentReference cuisines = FirebaseFirestore.instance.collection('cuisines').doc(dishId);
-        futures.add(cuisines.get().then((value) {
-           if(value.exists){
-             var t = Temp();
-             t.ob1 = value.get('name');
-             t.ob2 = value.get('url');
-             tl.add(t);
-             // temp2.add(t);
-           }
-        }));
+         }
 
-        temp2 = tl;
+        } else {
+
+          DocumentReference cuisines = FirebaseFirestore.instance.collection(
+              'cuisines').doc(dishId);
+          futures.add(cuisines.get().then((value) {
+            if (value.exists) {
+              var t = Temp();
+              t.ob1 = value.get('name');
+              t.ob2 = value.get('url');
+              tl.add(t);
+              // temp2.add(t);
+            }
+          }));
+
+          temp2 = tl;
+        }
       }
-    }
 
     await Future.wait(futures);
 
     for (int i = 0; i < temp1.length; i++) {
+
       var notification = Notifications();
       notification.userName = temp1.elementAt(i).ob1;
       notification.time = temp1.elementAt(i).ob2;
@@ -144,7 +152,7 @@ class _PendingOrdersState extends State<PendingOrders> {
           return const CircularProgressIndicator();
         }
         if (snapshot.hasError) {
-          return  Text('Something went wrong!${snapshot.error}');
+          return const Text('');
         }
         if (snapshot.hasData && snapshot.data!.isEmpty) {
           return const Text('No data found.');

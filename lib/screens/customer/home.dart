@@ -144,7 +144,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Stream<QuerySnapshot> getDatas() {
+  Stream<QuerySnapshot> getDataByDishName() {
     return FirebaseFirestore.instance
         .collection('users')
         .where('username', whereIn: usernames)
@@ -155,7 +155,8 @@ class _HomeState extends State<Home> {
     //usernames.clear();
     if (searchText != '') {
       if (Helper.type == 4) {
-        return FirebaseFirestore.instance.collection('cuisines').where('name',
+        return FirebaseFirestore.instance.collection('cuisines')
+            .where('name',
             whereIn: [
               searchText.toLowerCase(),
               searchText.toUpperCase()
@@ -195,7 +196,7 @@ class _HomeState extends State<Home> {
                     if (name != null && name.isNotEmpty) {
                       if (!usernames.contains(name)) {
                         usernames.add(name);
-                        print(name);
+                        
                       }
                     }
                   });
@@ -226,9 +227,9 @@ class _HomeState extends State<Home> {
     if (Helper.type == 4) {
       name = 'name';
     }
-    print('Empty:${usernames.isEmpty}');
+
     return StreamBuilder<QuerySnapshot>(
-      stream: usernames.isEmpty ? getData() : getDatas(),
+      stream: usernames.isEmpty ? getData() : getDataByDishName(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
@@ -264,7 +265,7 @@ class _HomeState extends State<Home> {
     }
 
     return StreamBuilder<QuerySnapshot>(
-      stream: usernames.isEmpty ? getData() : getDatas(),
+      stream: usernames.isEmpty ? getData() : getDataByDishName(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');

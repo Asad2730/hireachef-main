@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:hireachef/Helper.dart';
 import 'package:hireachef/screens/auth/login.dart';
@@ -94,6 +95,9 @@ class _ProfileState extends State<Profile> {
             profileCard("Name", Helper.loggedUser.username),
             profileCard("Email",  Helper.loggedUser.email),
             profileCard("City",  Helper.loggedUser.location),
+            Helper.loggedUser.rating != 0?
+            profileCard('Rating', Helper.loggedUser.rating.toPrecision(1).toString())
+                : const Text(''),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

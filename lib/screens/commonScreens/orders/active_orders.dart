@@ -16,10 +16,14 @@ class ActiveOrders extends StatefulWidget {
 }
 
 class _ActiveOrdersState extends State<ActiveOrders> {
+
+
+  void refresh() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
-
-
 
     return Scaffold(
       body: Container(
@@ -49,57 +53,65 @@ class _ActiveOrdersState extends State<ActiveOrders> {
 
   Future<List<Notifications>> getData() async {
     List<Notifications> list = [];
-    List<Temp> temp1 = [], temp2 = [],tl=[];
+    List<Temp> temp1 = [],
+        temp2 = [],
+        tl = [];
 
-    QuerySnapshot requests = await FirebaseFirestore.instance.collection('requests')
-        .where('status', isEqualTo: 0)
-        .where('ids',arrayContainsAny: [Helper.loggedUser.id])
+    QuerySnapshot requests = await FirebaseFirestore.instance.collection(
+        'requests')
+        .where('status', isEqualTo: 1)
+        .where('ids', arrayContainsAny: [Helper.loggedUser.id])
         .get();
 
     List<Future<void>> futures = [];
 
     for (var i in requests.docs) {
-
       String uid = i.get('uid');
       String dishId = i.get('dishId');
       String time = i.get('time');
-
-      DocumentReference user = FirebaseFirestore.instance.collection('users').doc(uid);
+      String dId = i.get('dishId');
+      DocumentReference user = FirebaseFirestore.instance.collection('users')
+          .doc(uid);
       futures.add(user.get().then((value) {
         var t = Temp();
         t.ob1 = value.get('username');
         t.ob2 = time;
+        t.ob3 = i.id;
         temp1.add(t);
       }));
 
-      if(Helper.loggedUser.type == 2){
+      if (Helper.loggedUser.type == 2) {
+        if(dId == ''){
 
-        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-        futures.add(dish.get().then((value) {
-          var t = Temp();
-          t.ob1 = value.get('name');
-          t.ob2 = value.get('url');
-          temp2.add(t);
-        }));
+          DocumentReference user = FirebaseFirestore.instance.collection('users')
+              .doc(uid);
+          futures.add(user.get().then((value) {
+            var t = Temp();
+            var url ='https://img.freepik.com/free-vector/creative-chef-logo-template_23-2148980376.jpg?w=740&t=st=1685642117~exp=1685642717~hmac=d032bcda46b0eb90a5ca29247e248dd5c35b552b0af805eeddc45923f77ebcbc';
+            t.ob1 = '';
+            t.ob2 = url;
+            temp2.add(t);
+          }));
 
-      }else{
-
-
-        DocumentReference dish = FirebaseFirestore.instance.collection('dishes').doc(dishId);
-
-        futures.add(dish.get().then((value) {
-          if(value.exists){
+        }else{
+          DocumentReference dish = FirebaseFirestore.instance.collection(
+              'dishes')
+              .doc(dishId);
+          futures.add(dish.get().then((value) {
             var t = Temp();
             t.ob1 = value.get('name');
             t.ob2 = value.get('url');
-            tl.add(t);
-            //temp2.add(t);
-          }
-        }));
+            temp2.add(t);
+          }));
 
-        DocumentReference cuisines = FirebaseFirestore.instance.collection('cuisines').doc(dishId);
+        }
+
+      } else {
+
+        DocumentReference cuisines = FirebaseFirestore.instance.collection(
+            'cuisines').doc(dishId);
         futures.add(cuisines.get().then((value) {
-          if(value.exists){
+          if (value.exists) {
             var t = Temp();
             t.ob1 = value.get('name');
             t.ob2 = value.get('url');
@@ -115,17 +127,21 @@ class _ActiveOrdersState extends State<ActiveOrders> {
     await Future.wait(futures);
 
     for (int i = 0; i < temp1.length; i++) {
+
       var notification = Notifications();
       notification.userName = temp1.elementAt(i).ob1;
       notification.time = temp1.elementAt(i).ob2;
       notification.dishName = temp2.elementAt(i).ob1;
       notification.url = temp2.elementAt(i).ob2;
-
+      notification.id = temp1.elementAt(i).ob3;
       list.add(notification);
     }
 
+
+
     return list;
   }
+
 
 
 
@@ -137,7 +153,7 @@ class _ActiveOrdersState extends State<ActiveOrders> {
           return const CircularProgressIndicator();
         }
         if (snapshot.hasError) {
-          return const Text('Something went wrong!');
+          return const Text('');
         }
         if (snapshot.hasData && snapshot.data!.isEmpty) {
           return const Text('No data found.');
@@ -150,8 +166,8 @@ class _ActiveOrdersState extends State<ActiveOrders> {
           itemCount: snapshot.data!.length,
           itemBuilder: (BuildContext context, int i) {
             var notification = snapshot.data![i];
-
-            return activeOrderCard(notification.userName, notification.dishName, notification.time, notification.url);
+            return activeOrderCard(notification.id,notification.userName,
+                notification.dishName, notification.time, notification.url,refresh);
           },
         );
       },
@@ -162,5 +178,5 @@ class _ActiveOrdersState extends State<ActiveOrders> {
 
 
 class Temp{
-  late String ob1,ob2;
+  late String ob1,ob2,ob3;
 }

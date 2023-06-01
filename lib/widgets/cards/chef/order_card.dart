@@ -27,8 +27,7 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(name + " has placed order for " + dish),
-                Text(name + " has send you request at"),
+                 Text(name + " has placed order for " + dish),
                 const SizedBox(
                   height: 5,
                 ),
@@ -58,8 +57,8 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
                     .update({'status':1,'time':formattedTime});
                   refresh();
                 },
-                child: Row(
-                  children:  const [
+                child: const Row(
+                  children:  [
                     Icon(
                       Icons.check,
                       color: Colors.white,
@@ -87,8 +86,8 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
                       .update({'status':-1,'time':formattedTime});
                   refresh();
                 },
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(
                       Icons.close,
                       color: Colors.white,
@@ -124,8 +123,8 @@ completedOrderCard(name, dish, time, image) {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: Image(
-                image: AssetImage(image),
+              child: Image.network(
+                image,
                 width: 50,
                 height:50,
               ),
@@ -136,11 +135,11 @@ completedOrderCard(name, dish, time, image) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Order of $name having $dish"),
+                Text("Order of $name  $dish"),
                 const SizedBox(
                   height: 5,
                 ),
-                Text("Completed at : $time"),
+                Text("was deliverd at : $time"),
               ],
             ),
           ],
@@ -156,7 +155,7 @@ completedOrderCard(name, dish, time, image) {
   );
 }
 
-activeOrderCard(name, dish, time, image) {
+activeOrderCard(id,name, dish, time, image,VoidCallback refresh) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 5),
     child: Column(
@@ -183,6 +182,35 @@ activeOrderCard(name, dish, time, image) {
                   height: 5,
                 ),
                 Text("Punched at : $time"),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8 , horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: GestureDetector(
+                    onTap: ()async{
+                      DateTime now = DateTime.now();
+                      String formattedTime = DateFormat('h:mm a').format(now);
+                      await FirebaseFirestore.instance.collection('requests')
+                          .doc(id)
+                          .update({'status':3,'time':formattedTime});
+                      refresh();
+                    },
+                    child: const Row(
+                      children:  [
+                        Icon(
+                          Icons.delivery_dining_sharp,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Deliver",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
@@ -192,7 +220,8 @@ activeOrderCard(name, dish, time, image) {
           width: Get.width - 80,
           height: 0.2,
           color: Colors.black,
-        )
+        ),
+
       ],
     ),
   );
