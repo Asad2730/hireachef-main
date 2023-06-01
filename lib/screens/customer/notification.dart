@@ -170,7 +170,8 @@ class _NotificationsState extends State<Notifications> {
                 data['username'],
                 "has accepted your request",
                 data['data']['time'],
-                'assets/avatar.png');
+                data['pic']
+            );
           },
         );
       },

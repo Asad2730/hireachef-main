@@ -14,7 +14,7 @@ class User{
 
 
 class Notifications{
-  late String dishName,time,url,userName;
+  late String dishName,time,url,userName,pic;
   late String id;
 }
 

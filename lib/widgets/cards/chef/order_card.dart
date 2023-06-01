@@ -139,7 +139,7 @@ completedOrderCard(name, dish, time, image) {
                 const SizedBox(
                   height: 5,
                 ),
-                Text("was deliverd at : $time"),
+                Text("was delivered at : $time"),
               ],
             ),
           ],

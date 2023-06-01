@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 notificationCard(name,message,time,image){
   return Container(
-    margin: EdgeInsets.symmetric(vertical: 5),
+    margin: const EdgeInsets.symmetric(vertical: 5),
     child: Column(
       children: [
         Row(
@@ -11,8 +11,8 @@ notificationCard(name,message,time,image){
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
-              child: Image(
-                image: AssetImage(image),
+              child: Image.network(
+                image,
                 width: 50,
                 height:50,
               ),
