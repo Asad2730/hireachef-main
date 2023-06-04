@@ -6,7 +6,7 @@ class Helper{
 }
 
 class User{
-  late String id,email,password,username,location;
+  late String id,email,password,username,location,pic;
   late double rating;
   late int type;
 

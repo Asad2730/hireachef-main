@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,8 +7,8 @@ import 'package:hireachef/Constants.dart';
 import '../../../Helper.dart';
 
 class ChatDetail extends StatefulWidget {
-  final String id,name;
-  const ChatDetail({required this.id, required this.name,Key? key}) : super(key: key);
+  final String id,name,pic;
+  const ChatDetail({required this.id, required this.name,Key? key, required this.pic}) : super(key: key);
 
   @override
   State<ChatDetail> createState() => _ChatDetailState();
@@ -55,8 +54,8 @@ class _ChatDetailState extends State<ChatDetail> {
                 const SizedBox(
                   width: 2,
                 ),
-                const CircleAvatar(
-                  backgroundImage: AssetImage('assets/avatar.png'),
+                 CircleAvatar(
+                  backgroundImage: NetworkImage(widget.pic),
                   maxRadius: 20,
                 ),
                 const SizedBox(

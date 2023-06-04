@@ -146,7 +146,7 @@ class _LoginState extends State<Login> {
       user.email = data['email'];
       user.type = data['type'];
       user.location = data['location'];
-     // print('EX:${data['rating']}');
+      user.pic = data['pic'];
       Map<String, dynamic>? dataMap = data.data() as Map<String, dynamic>?;
       if (dataMap != null && dataMap.containsKey('rating')) {
         user.rating = dataMap['rating'];

@@ -107,7 +107,7 @@ class _ChatMainState extends State<ChatMain> {
 
     Set<String> processedIds = {}; // Store processed docIds in a set
 
-    requests.docs.forEach((requestDoc) {
+    for (var requestDoc in requests.docs) {
       String docId = requestDoc
           .get('ids')
           .firstWhere((id) => id != Helper.loggedUser.id);
@@ -119,7 +119,7 @@ class _ChatMainState extends State<ChatMain> {
             .then((doc) => {'id': doc.id, ...doc.data()!}));
         processedIds.add(docId); // Add processed docId to the set
       }
-    });
+    }
 
     List<Map<String, dynamic>> users = await Future.wait(userQueries);
     return users;
@@ -147,7 +147,7 @@ class _ChatMainState extends State<ChatMain> {
             return convoCard(
               data['username'],
               "Awesome Setup",
-              'assets/avatar.png',
+              data['pic'],
               id: id,
             );
           },

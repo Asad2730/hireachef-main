@@ -76,10 +76,10 @@ class _ProfileState extends State<Profile> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(200.0),
-              child: const Image(
-                image: AssetImage("assets/avatar-2.jpg"),
+              child:  Image.network(
+                Helper.loggedUser.pic,
                 width: 130,
-                height: 130,
+
               ),
             ),
             const SizedBox(

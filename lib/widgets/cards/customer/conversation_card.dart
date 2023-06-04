@@ -5,7 +5,7 @@ import 'package:hireachef/screens/commonScreens/chat/chat_detail.dart';
 convoCard(name, messageText,imageUrl,{required String id}) {
   return GestureDetector(
     onTap: () {
-      Get.to(()=> ChatDetail(id: id,name: name,));
+      Get.to(()=> ChatDetail(id: id,name: name,pic: imageUrl,));
     },
     child: Container(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -15,8 +15,8 @@ convoCard(name, messageText,imageUrl,{required String id}) {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage(imageUrl),
                   maxRadius: 30,
+                  backgroundImage: NetworkImage(imageUrl),
                 ),
                 const SizedBox(
                   width: 16,
