@@ -1,6 +1,4 @@
-import 'dart:ffi';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +148,6 @@ class _AddDishState extends State<AddDish> {
       Fluttertoast.showToast(msg: 'Item added!');
       Get.back();
     }catch(ex){
-      print('ex $ex');
       Fluttertoast.showToast(msg: ex.toString());
     }
   }
