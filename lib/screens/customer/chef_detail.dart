@@ -9,12 +9,11 @@ import 'package:intl/intl.dart';
 import '../../Constants.dart';
 import '../../Helper.dart';
 
-
 class ChefDetail extends StatefulWidget {
-
-  final Map<String,dynamic> data;
+  final Map<String, dynamic> data;
   final String cid;
-  const ChefDetail({required this.cid,required this.data,Key? key}) : super(key: key);
+  const ChefDetail({required this.cid, required this.data, Key? key})
+      : super(key: key);
   @override
   State<ChefDetail> createState() => _ChefDetailState();
 }
@@ -22,10 +21,9 @@ class ChefDetail extends StatefulWidget {
 class _ChefDetailState extends State<ChefDetail> {
   @override
   Widget build(BuildContext context) {
-
     String type = 'Dishes';
-    if(Helper.type == 4){
-      type='Cuisines';
+    if (Helper.type == 4) {
+      type = 'Cuisines';
     }
 
     return Scaffold(
@@ -63,41 +61,35 @@ class _ChefDetailState extends State<ChefDetail> {
                   height: 130,
                 ),
               ),
-
               const SizedBox(
                 height: 10,
               ),
-              Helper.type != 4?
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                   Text(
-                   widget.data['username'],
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-
-                ],
-              ):const Text(''),
-              Helper.type != 4?
-              const Text("+92 3xx xxxxxxx"):const Text(''),
+              Helper.type != 4
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.data['username'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                      ],
+                    )
+                  : const Text(''),
+              Helper.type != 4 ? const Text("+92 3xx xxxxxxx") : const Text(''),
               const SizedBox(
                 height: 20,
               ),
-               Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                 type,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  type,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 20),
                 ),
-              ),
-              const SizedBox(
-                height: 15,
               ),
               Container(
                 width: double.infinity,
@@ -124,16 +116,13 @@ class _ChefDetailState extends State<ChefDetail> {
                   ),
                 ),
               ),
-
               _dishes(),
-
             ],
           ),
         ),
       ),
     );
   }
-
 
   Future<Stream<QuerySnapshot>> getData() async {
     final querySnapshot = await FirebaseFirestore.instance
@@ -145,9 +134,7 @@ class _ChefDetailState extends State<ChefDetail> {
 
     Stream<QuerySnapshot> response;
     if (Helper.type == 4) {
-      response = FirebaseFirestore.instance
-          .collection('cuisines')
-          .snapshots();
+      response = FirebaseFirestore.instance.collection('cuisines').snapshots();
     } else {
       response = FirebaseFirestore.instance
           .collection('dishes')
@@ -157,18 +144,18 @@ class _ChefDetailState extends State<ChefDetail> {
     return response;
   }
 
-
-
   Widget _dishes() {
     return FutureBuilder<Stream<QuerySnapshot>>(
       future: getData(),
-      builder: (BuildContext context, AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
+      builder: (BuildContext context,
+          AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
         return StreamBuilder<QuerySnapshot>(
           stream: snapshot.data,
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Loading...');
             }
@@ -178,13 +165,12 @@ class _ChefDetailState extends State<ChefDetail> {
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
                 DocumentSnapshot document = snapshot.data!.docs[index];
-                Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                Map<String, dynamic> data =
+                    document.data() as Map<String, dynamic>;
                 String did = document.id;
 
-                return  dishesCard(data['url'],data['name'] ,
-                    data['description'],data['price'],
-                    did,data);
-
+                return dishesCard(data['url'], data['name'],
+                    data['description'], data['price'], did, data);
               },
             );
           },
@@ -193,22 +179,19 @@ class _ChefDetailState extends State<ChefDetail> {
     );
   }
 
-  Future sendRequest() async{
-
+  Future sendRequest() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     DateTime now = DateTime.now();
     String formattedTime = DateFormat('h:mm a').format(now);
-    Map<String,dynamic> data = {
-      'uid':Helper.loggedUser.id,
-      'dishId':'',
-      'status':0,
-      'time':formattedTime,
-      'ids':[Helper.loggedUser.id,widget.cid],
+    Map<String, dynamic> data = {
+      'uid': Helper.loggedUser.id,
+      'dishId': '',
+      'status': 0,
+      'time': formattedTime,
+      'ids': [Helper.loggedUser.id, widget.cid],
     };
 
     await db.collection('requests').add(data);
     Fluttertoast.showToast(msg: 'Request sent successfully!');
   }
-
-
 }

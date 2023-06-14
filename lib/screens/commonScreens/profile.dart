@@ -21,18 +21,16 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
-  bottomNavigation(){
-    if(widget.id==1){
-      return navigationBar(context, 3);
-    }else if (widget.id==2){
-      return chefNavigation(context, 3);
-    }else if (widget.id==3){
-      return cateringNavigation(context, 3);
-    }else if (widget.id==4){
-
-    }
+  bottomNavigation() {
+    if (widget.id == 1) {
+      return navigationBar(context, 4);
+    } else if (widget.id == 2) {
+      return chefNavigation(context, 4);
+    } else if (widget.id == 3) {
+      return cateringNavigation(context, 4);
+    } else if (widget.id == 4) {}
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,27 +74,27 @@ class _ProfileState extends State<Profile> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(200.0),
-              child:  Image.network(
+              child: Image.network(
                 Helper.loggedUser.pic,
                 width: 130,
-
               ),
             ),
             const SizedBox(
               height: 10,
             ),
-             Text(
-             Helper.loggedUser.username,
+            Text(
+              Helper.loggedUser.username,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(
               height: 40,
             ),
             profileCard("Name", Helper.loggedUser.username),
-            profileCard("Email",  Helper.loggedUser.email),
-            profileCard("City",  Helper.loggedUser.location),
-            Helper.loggedUser.rating != 0?
-            profileCard('Rating', Helper.loggedUser.rating.toPrecision(1).toString())
+            profileCard("Email", Helper.loggedUser.email),
+            profileCard("City", Helper.loggedUser.location),
+            Helper.loggedUser.rating != 0
+                ? profileCard('Rating',
+                    Helper.loggedUser.rating.toPrecision(1).toString())
                 : const Text(''),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +115,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Get.to(()=>const PasswordEdit());
+                        Get.to(() => const PasswordEdit());
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20),

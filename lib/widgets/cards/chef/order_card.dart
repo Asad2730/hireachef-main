@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-
-
 pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 5),
@@ -18,7 +16,7 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
               child: Image.network(
                 image,
                 width: 50,
-                height:50,
+                height: 50,
               ),
             ),
             const SizedBox(
@@ -27,7 +25,7 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Text(name + " has placed order for " + dish),
+                Text(name + " has placed order for " + dish),
                 const SizedBox(
                   height: 5,
                 ),
@@ -43,22 +41,23 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 8 , horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.green,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: GestureDetector(
-                onTap: ()async{
+                onTap: () async {
                   DateTime now = DateTime.now();
                   String formattedTime = DateFormat('h:mm a').format(now);
-                  await FirebaseFirestore.instance.collection('requests')
-                   .doc(id)
-                    .update({'status':1,'time':formattedTime});
+                  await FirebaseFirestore.instance
+                      .collection('requests')
+                      .doc(id)
+                      .update({'status': 1, 'time': formattedTime});
                   refresh();
                 },
-                child: const Row(
-                  children:  [
+                child: Row(
+                  children: [
                     Icon(
                       Icons.check,
                       color: Colors.white,
@@ -78,15 +77,16 @@ pendingOrderCard(name, dish, time, image, String id, VoidCallback refresh) {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: GestureDetector(
-                onTap: ()async{
+                onTap: () async {
                   DateTime now = DateTime.now();
                   String formattedTime = DateFormat('h:mm a').format(now);
-                  await FirebaseFirestore.instance.collection('requests')
+                  await FirebaseFirestore.instance
+                      .collection('requests')
                       .doc(id)
-                      .update({'status':-1,'time':formattedTime});
+                      .update({'status': -1, 'time': formattedTime});
                   refresh();
                 },
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons.close,
@@ -126,7 +126,7 @@ completedOrderCard(name, dish, time, image) {
               child: Image.network(
                 image,
                 width: 50,
-                height:50,
+                height: 50,
               ),
             ),
             const SizedBox(
@@ -155,7 +155,7 @@ completedOrderCard(name, dish, time, image) {
   );
 }
 
-activeOrderCard(id,name, dish, time, image,VoidCallback refresh) {
+activeOrderCard(id, name, dish, time, image, VoidCallback refresh) {
   return Container(
     margin: const EdgeInsets.symmetric(vertical: 5),
     child: Column(
@@ -168,7 +168,7 @@ activeOrderCard(id,name, dish, time, image,VoidCallback refresh) {
               child: Image.network(
                 image,
                 width: 50,
-                height:50,
+                height: 50,
               ),
             ),
             const SizedBox(
@@ -183,22 +183,24 @@ activeOrderCard(id,name, dish, time, image,VoidCallback refresh) {
                 ),
                 Text("Punched at : $time"),
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8 , horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                   decoration: BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: GestureDetector(
-                    onTap: ()async{
+                    onTap: () async {
                       DateTime now = DateTime.now();
                       String formattedTime = DateFormat('h:mm a').format(now);
-                      await FirebaseFirestore.instance.collection('requests')
+                      await FirebaseFirestore.instance
+                          .collection('requests')
                           .doc(id)
-                          .update({'status':3,'time':formattedTime});
+                          .update({'status': 3, 'time': formattedTime});
                       refresh();
                     },
-                    child: const Row(
-                      children:  [
+                    child: Row(
+                      children: [
                         Icon(
                           Icons.delivery_dining_sharp,
                           color: Colors.white,
@@ -221,7 +223,6 @@ activeOrderCard(id,name, dish, time, image,VoidCallback refresh) {
           height: 0.2,
           color: Colors.black,
         ),
-
       ],
     ),
   );

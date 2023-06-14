@@ -4,14 +4,15 @@ import 'package:hireachef/screens/customer/item_detail.dart';
 
 import '../../../Constants.dart';
 
-dishesCard(image, name, description, price, String did, Map<String, dynamic> data) {
+dishesCard(
+    image, name, description, price, String did, Map<String, dynamic> data) {
   return GestureDetector(
     onTap: () {
-      Get.to(()=> ItemDetail(dishId: did,data:data));
+      Get.to(() => ItemDetail(dishId: did, data: data));
     },
     child: Container(
       width: Get.width,
-      height: 110,
+      height: 150,
       margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
       decoration: BoxDecoration(
         color: Constant.white,
@@ -34,7 +35,7 @@ dishesCard(image, name, description, price, String did, Map<String, dynamic> dat
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20.0),
                 child: Image.network(
-                 image,
+                  image,
                   width: 130,
                   height: 130,
                 ),
